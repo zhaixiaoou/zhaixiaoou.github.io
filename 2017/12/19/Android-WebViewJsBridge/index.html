@@ -6,18 +6,21 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="https://zhaixiaoou.com">
-  <title>Hello World | xiaoou&#39;s blog</title>
+  <title>Android-WebViewJsBridge | xiaoou&#39;s blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub. Quick">
+  <meta name="description" content="WebViewJavascriptBridge的github地址 这种方法采用js注入的方式来实现webView与h5的交互相关文件的UML图 Native相关操作 Activity中new WebViewJavascriptBridge()对象 bridge 在WebView加载成功之后 onPageFinish()方法中加载本地js代码 在WebView对象上addJavascriptInte">
+<meta name="keywords" content="android">
 <meta property="og:type" content="article">
-<meta property="og:title" content="Hello World">
-<meta property="og:url" content="https://zhaixiaoou.com/2017/12/19/hello-world/index.html">
+<meta property="og:title" content="Android-WebViewJsBridge">
+<meta property="og:url" content="https://zhaixiaoou.com/2017/12/19/Android-WebViewJsBridge/index.html">
 <meta property="og:site_name" content="xiaoou&#39;s blog">
-<meta property="og:description" content="Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub. Quick">
-<meta property="og:updated_time" content="2017-12-19T14:40:56.000Z">
+<meta property="og:description" content="WebViewJavascriptBridge的github地址 这种方法采用js注入的方式来实现webView与h5的交互相关文件的UML图 Native相关操作 Activity中new WebViewJavascriptBridge()对象 bridge 在WebView加载成功之后 onPageFinish()方法中加载本地js代码 在WebView对象上addJavascriptInte">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhaixiaoou/MarkdownPhotos/master/res/859FC0AB-8DEA-422C-95ED-50E247E11478.png">
+<meta property="og:updated_time" content="2017-12-19T14:57:21.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Hello World">
-<meta name="twitter:description" content="Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub. Quick">
+<meta name="twitter:title" content="Android-WebViewJsBridge">
+<meta name="twitter:description" content="WebViewJavascriptBridge的github地址 这种方法采用js注入的方式来实现webView与h5的交互相关文件的UML图 Native相关操作 Activity中new WebViewJavascriptBridge()对象 bridge 在WebView加载成功之后 onPageFinish()方法中加载本地js代码 在WebView对象上addJavascriptInte">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/zhaixiaoou/MarkdownPhotos/master/res/859FC0AB-8DEA-422C-95ED-50E247E11478.png">
   
     <link rel="alternative" href="/atom.xml" title="xiaoou&#39;s blog" type="application/atom+xml">
   
@@ -153,36 +156,178 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-hello-world" class="article article-type-post " itemscope itemprop="blogPost">
+            <article id="post-Android-WebViewJsBridge" class="article article-type-post " itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 class="article-title" itemprop="name">
-      Hello World
+      Android-WebViewJsBridge
     </h1>
   
 
         
-        <a href="/2017/12/19/hello-world/" class="archive-article-date">
-  	<time datetime="2017-12-19T14:40:56.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-12-19</time>
+        <a href="/2017/12/19/Android-WebViewJsBridge/" class="archive-article-date">
+  	<time datetime="2017-12-19T14:52:30.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-12-19</time>
 </a>
         
       </header>
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>Welcome to <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="noopener">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="noopener">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="noopener">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="noopener">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="noopener">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="noopener">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/deployment.html" target="_blank" rel="noopener">Deployment</a></p>
+        <p><a href="https://github.com/fangj/WebViewJavascriptBridge" target="_blank" rel="noopener">WebViewJavascriptBridge的github地址</a></p>
+<p>这种方法采用js注入的方式来实现webView与h5的交互<br>相关文件的UML图<br><img src="https://raw.githubusercontent.com/zhaixiaoou/MarkdownPhotos/master/res/859FC0AB-8DEA-422C-95ED-50E247E11478.png" alt="image"></p>
+<h3 id="Native相关操作"><a href="#Native相关操作" class="headerlink" title="Native相关操作"></a>Native相关操作</h3><ul>
+<li>Activity中new WebViewJavascriptBridge()对象 bridge</li>
+<li>在WebView加载成功之后 onPageFinish()方法中加载本地js代码</li>
+<li><p>在WebView对象上addJavascriptInterface(Object object, String name)，This method can be used to allow JavaScript to control the host application. 在本地js文件中可以通过该name来，调用Native方法，调用的方法必须由@JavascriptInterface 注解</p>
+<pre><code>mWebView.addJavascriptInterface(this, &quot;_WebViewJavascriptBridge&quot;);    
+</code></pre></li>
+</ul>
+<h5 id="本地js代码实现的功能"><a href="#本地js代码实现的功能" class="headerlink" title="本地js代码实现的功能"></a>本地js代码实现的功能</h5><ul>
+<li>在当前window上添加WebViewJavascriptBridge对象<ul>
+<li>在当前document对象上添加一个event, 将该WebViewJavascriptBridge添加到event中，通过document分发这个event</li>
+<li>在html加载的js文件中，监听该event。收到该event消息之后，获取event中WebViewJavascriptBridge对象，进行初始化, 给WebViewJavascriptBridge._messageHandler赋值。</li>
+</ul>
+</li>
+</ul>
+<p>现在H5页面获取WebViewJavascriptBridge对象，可以进行交互啦！</p>
+<h3 id="H5发送消息到Native"><a href="#H5发送消息到Native" class="headerlink" title="H5发送消息到Native"></a>H5发送消息到Native</h3><p>bridge就是H5页面获取的WebViewJavascriptBridge对象</p>
+<pre><code>bridge.callHandler(&quot;handler1&quot;,&quot;gift for handler1&quot;,function(responseData){
+        console.log(&quot;got handler1 response:&quot;+responseData);
+    });
+</code></pre><h3 id="Native处理H5发来的消息"><a href="#Native处理H5发来的消息" class="headerlink" title="Native处理H5发来的消息"></a>Native处理H5发来的消息</h3><ul>
+<li><p>native本地的js代码</p>
+<pre><code>function callHandler(handlerName, data, responseCallback) {
+    _doSend({ handlerName:handlerName, data:data }, responseCallback)
+}
+function _doSend(message, responseCallback) {
+    if (responseCallback) {
+        var callbackId = &apos;cb_&apos;+(uniqueId++)+&apos;_&apos;+new Date().getTime();
+        responseCallbacks[callbackId] = responseCallback;
+        message[&apos;callbackId&apos;] = callbackId;
+        }
+        console.log(&quot;sending:&quot;+JSON.stringify(message));
+    //调用Native方法
+    _WebViewJavascriptBridge._handleMessageFromJs(JSON.stringify(message.data)||null,message.responseId||null,
+        message.responseData||null,message.callbackId||null,message.handlerName||null);
 
+}
+</code></pre></li>
+<li><p>native代码处理消息<br>_handleMessageFromJs方法负责找到注册该hanlderName的WVJBHandler，把h5发来的信息回调回Activity，Activity做相应的处理。<br></p>
+<pre><code> @JavascriptInterface
+public void _handleMessageFromJs(final String data, String responseId,
+                                 String responseData, String callbackId, String handlerName){
+    if (null!=responseId) {
+        WVJBResponseCallback responseCallback = _responseCallbacks.get(responseId);
+        responseCallback.callback(responseData);
+        _responseCallbacks.remove(responseId);
+    } else {
+        WVJBResponseCallback responseCallback = null;
+        if (null!=callbackId) {
+            responseCallback=new CallbackJs(callbackId);
+        }
+        final WVJBHandler handler;
+        if (null!=handlerName) {
+            handler = _messageHandlers.get(handlerName);
+            if (null==handler) {
+                Log.e(&quot;test&quot;,&quot;WVJB Warning: No handler for &quot;+handlerName);
+                return ;
+            }
+        } else {
+            handler = _messageHandler;
+        }
+        try {
+            final WVJBResponseCallback finalResponseCallback = responseCallback;
+            mContext.runOnUiThread(new Runnable(){
+                @Override
+                public void run() {
+                    //回调给Activity处理
+                    handler.handle(data, finalResponseCallback);
+                }
+            });
+        }catch (Exception exception) {
+            Log.e(&quot;test&quot;,&quot;WebViewJavascriptBridge: WARNING: java handler threw. &quot;+exception.getMessage());
+        }
+    }
+}
+</code></pre></li>
+</ul>
+<h3 id="Native发送消息到H5"><a href="#Native发送消息到H5" class="headerlink" title="Native发送消息到H5"></a>Native发送消息到H5</h3><ul>
+<li><p>Activity中WebViewJavascriptBridge对象bridge，这个对象和window.WebViewJavascriptBridge不是同一个。</p>
+<pre><code>bridge.callHandler(&quot;gotoMarker&quot;,&quot;1&quot;);
+</code></pre><p>  WebViewJavascriptBridge.java</p>
+<pre><code> public void callHandler(String handlerName, String data) {
+    callHandler(handlerName, data,null);
+}
+public void callHandler(String handlerName, String data, WVJBResponseCallback responseCallback){
+    _sendData(data, responseCallback,handlerName);
+}
+
+private void _sendData(String data, WVJBResponseCallback responseCallback, String handlerName){
+Map&lt;String, String&gt; message=new HashMap&lt;String,String&gt;();
+message.put(&quot;data&quot;,data);
+if (null!=responseCallback) {
+    String callbackId = &quot;java_cb_&quot;+ (++_uniqueId);
+    _responseCallbacks.put(callbackId,responseCallback);
+    message.put(&quot;callbackId&quot;,callbackId);
+}
+if (null!=handlerName) {
+    message.put(&quot;handlerName&quot;, handlerName);
+}
+_dispatchMessage(message);
+}
+
+   private void _dispatchMessage(Map&lt;String, String&gt; message){
+String messageJSON = new JSONObject(message).toString();
+//调用WebViewJavascriptBridge.js的方法
+   final String javascriptCommand=String.format(&quot;javascript:WebViewJavascriptBridge._handleMessageFromJava(&apos;%s&apos;);&quot;,doubleEscapeString(messageJSON));
+mContext.runOnUiThread(new Runnable(){
+    @Override
+    public void run() {
+        mWebView.loadUrl(javascriptCommand);    
+    }
+});
+}
+</code></pre></li>
+</ul>
+<h3 id="H5处理Native发来的消息"><a href="#H5处理Native发来的消息" class="headerlink" title="H5处理Native发来的消息"></a>H5处理Native发来的消息</h3><p>Native的js代码处理，找到H5代码注册的那个Handler回调方法，回调回去，即可处理消息。<br></p>
+<p>WebViewJavascriptBridge.js</p>
+<pre><code>function _dispatchMessageFromJava(messageJSON) {
+        var message = JSON.parse(messageJSON);
+        var messageHandler;
+
+        if (message.responseId) {
+            var responseCallback = responseCallbacks[message.responseId];
+            if (!responseCallback) { return; }
+            responseCallback(message.responseData);
+            delete responseCallbacks[message.responseId]
+        } else {
+            var responseCallback;
+            if (message.callbackId) {
+                var callbackResponseId = message.callbackId;
+                responseCallback = function(responseData) {
+                    _doSend({ responseId:callbackResponseId, responseData:responseData })
+                }
+            }
+
+            var handler = WebViewJavascriptBridge._messageHandler;
+            if (message.handlerName) {
+                handler = messageHandlers[message.handlerName]
+            }
+            try {
+                handler(message.data, responseCallback)
+            } catch(exception) {
+                if (typeof console != &apos;undefined&apos;) {
+                    console.log(&quot;WebViewJavascriptBridge: WARNING: javascript handler threw.&quot;+ exception)
+                }
+            }
+        }
+}
+</code></pre><p>html中方法</p>
+<pre><code>bridge.registerHandler(&quot;showAlert&quot;, function(data) { console.log(&quot;alert:&quot;+data); });
+</code></pre>
       
 
       
@@ -211,6 +356,17 @@
     <div class="article-info article-info-index">
       
       
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">android</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
       
 
       
@@ -261,7 +417,7 @@
     <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
     <p>扫一扫，分享到微信</p>
     <div class="wx-qrcode">
-      <img src="//pan.baidu.com/share/qrcode?url=https://zhaixiaoou.com/2017/12/19/hello-world/" alt="微信分享二维码">
+      <img src="//pan.baidu.com/share/qrcode?url=https://zhaixiaoou.com/2017/12/19/Android-WebViewJsBridge/" alt="微信分享二维码">
     </div>
 </div>
 
@@ -275,15 +431,11 @@
   
 <nav id="article-nav">
   
-    <a href="/2017/12/19/Android-WebViewJsBridge/" id="article-nav-newer" class="article-nav-link-wrap">
-      <i class="icon-circle-left"></i>
-      <div class="article-nav-title">
-        
-          Android-WebViewJsBridge
-        
-      </div>
-    </a>
   
+    <a href="/2017/12/19/hello-world/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Hello World</div>
+      <i class="icon-circle-right"></i>
+    </a>
   
 </nav>
 
