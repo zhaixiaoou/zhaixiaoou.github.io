@@ -154,6 +154,106 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-Android启动模式详解" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/01/07/Android启动模式详解/">Android启动模式详解</a>
+    </h1>
+  
+
+        
+        <a href="/2018/01/07/Android启动模式详解/" class="archive-article-date">
+  	<time datetime="2018-01-07T10:30:18.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-01-07</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <ul>
+<li><p>standard-默认模式</p>
+<ul>
+<li>在没有设定启动模式的前提下，系统默认使用该模式启动Activity。每次启动Activity都会重新创建一个新的实例，不管这个实例存不存在。</li>
+</ul>
+</li>
+<li><p>singleTop-栈顶复用模式</p>
+<ul>
+<li>在这个模式下，如果要打开的Activity，已经位于栈顶，则不会重新创建，同时它的onNewIntent()方法被调用。<br><img src="https://raw.githubusercontent.com/zhaixiaoou/MarkdownPhotos/master/res/55A4092E-53DA-458E-8417-E32DF9A43350.png" alt="image"><br>要打开的Activity在栈顶，直接复用，调用onNewIntent()方法。</li>
+<li>如果栈顶不存在该Activity的实例，则和standard模式相同。<br><img src="https://raw.githubusercontent.com/zhaixiaoou/MarkdownPhotos/master/res/EA7B9FBE-8F34-49B4-AEC2-67CA6D9B31A9.png" alt="image"><br>hashCode值不一样，说明是不同的实例。</li>
+</ul>
+</li>
+<li><p>singleTask-栈内复用模式</p>
+<ul>
+<li><p>在这个模式下，如果栈中存在该Activity的实例，就会复用这个Activity，并将它之上的Activity全部出栈，并且会调用该实例的onNewIntent()方法<br><img src="https://raw.githubusercontent.com/zhaixiaoou/MarkdownPhotos/master/res/0920D52E-6566-4E3D-BEB9-9BE29B98A5FE.png" alt="image"><br>在这个过程中，涉及到了一个任务栈匹配的一个问题。这个模式启动的时候，是在自己的任务栈中寻找实例，这个任务栈就是通过taskAffinity指定。如果这个任务栈不存在，就会创建这个任务栈<br><img src="https://raw.githubusercontent.com/zhaixiaoou/MarkdownPhotos/master/res/8BA96DB3-61AB-4EFD-8D91-9384AB0709E2.png" alt="image"><br>这里给OtherSingleTask指明新的taskAffinity名字，当打开OtherSingleTaskActivity就会根据taskAffinity去寻找当前是否存在一个对应名字的任务栈，如果没有，就新建一个该名字的任务栈，并将该实例入栈，如果有话，就会查找在该任务栈里面是否有该实例。<br></p>
+<pre><code>很重要的一点，taskAffinity属性不对standard和singleTop模式有任何影响，
+即时你指定了该属性为其他不同的值，这两种启动模式下不会创建新的task
+（如果不指定即默认值，即包名） 
+</code></pre></li>
+</ul>
+</li>
+<li><p>singleInstance-全局唯一模式</p>
+<ul>
+<li>该模式具备singleTask所有的特性外，与他区别的是，singleInstance模式下的Activity会单独占用一个Task栈，具有全局唯一性，即在整个系统中就这一个实例，由于栈内复用的特性，后序请求都不会新建该实例，除非该任务栈被销毁，以singleInstance模式启动的Activity在整个系统中是单例的，如果在启动这样的Activiyt时，已经存在了一个实例，那么会把它所在的任务调度到前台，重用这个实例。<br><img src="https://raw.githubusercontent.com/zhaixiaoou/MarkdownPhotos/master/res/B5BA99AC-4744-4BC4-AA0E-83D9C0FC4E03.png" alt="image"><br>第一次启动SingleInstanceActivity,新建了一个实例，第二次从其他APP通过隐式调用再次进入该Activity时，直接复用该实例，调用onNewIntent()方法。</li>
+</ul>
+</li>
+</ul>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">android</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/01/07/Android启动模式详解/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-hexo-github-搭建自己的博客" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -599,7 +699,7 @@ mContext.runOnUiThread(new Runnable(){
   <div class="outer">
     <div id="footer-info">
     	<div class="footer-left">
-    		&copy; 2017 zhaixiaoou
+    		&copy; 2018 zhaixiaoou
     	</div>
       	<div class="footer-right">
       		<a href="http://hexo.io/" target="_blank">Hexo</a>  Theme <a href="https://github.com/litten/hexo-theme-yilia" target="_blank">Yilia</a> by Litten
