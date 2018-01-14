@@ -154,6 +154,117 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-minSdkVersion-targetSdkVersion-compileSdkVersion代表的含义" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/01/14/minSdkVersion-targetSdkVersion-compileSdkVersion代表的含义/">minSdkVersion targetSdkVersion compileSdkVersion代表的含义</a>
+    </h1>
+  
+
+        
+        <a href="/2018/01/14/minSdkVersion-targetSdkVersion-compileSdkVersion代表的含义/" class="archive-article-date">
+  	<time datetime="2018-01-14T12:26:41.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-01-14</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>参考地址：<a href="https://medium.com/google-developers/picking-your-compilesdkversion-minsdkversion-targetsdkversion-a098a0341ebd" target="_blank" rel="noopener"><em>Picking your compileSdkVersion, minSdkVersion, and targetSdkVersion</em></a></p>
+<ul>
+<li><p>minSdkVersion</p>
+<ul>
+<li>一个用于指定应用运行所需最低API级别的整数</li>
+<li>如果系统API级别低于该属性指定的值，Android系统将会阻止用户安装应用</li>
+<li><p>应该始终声明该属性</p>
+<blockquote>
+<p>注意：如果您不声明该属性，系统将假定默认值为“1”，这表示您的应用兼容所有<br>Android 版本。 如果您的应用并不兼容所有版本（例如，它使用 API 级别 3 中引入的 API），并且您尚未声明正确的 minSdkVersion，则当应用安装在 API 级别小于 3 的系统上时，应用将在运行时尝试访问不可用的 API 时发生崩溃。 因此，请务必在 minSdkVersion 属性中声明合适的 API 级别。</p>
+</blockquote>
+</li>
+<li><p>如果你设置的minSdk = 13, 但是你使用的方法只有在14之后才有的，AndroidStudio会报错提示。</p>
+<blockquote>
+<p>if (Build.VERSION.SDK_INT &gt;=Build.VERSION_CODES.M) {<br>  <br> // 高版本有的方法<br><br>  equestPermissions(newString[]{“”},REQUEST_CODE_ASK_CALL_PHONE);<br><br>}else{<br>  <br>//不需要申请权限直接调用我们需要处理的方法。<br><br>}</p>
+</blockquote>
+</li>
+</ul>
+</li>
+<li><p>targetSdkVersion</p>
+<ul>
+<li>一个用于指定应用的目标API级别</li>
+<li>如果未设置，默认与minSdkVersion指定的值相等</li>
+<li>该属性用于通知系统，您已针对目标版本进行测试，并且系统不应启用任何兼容性行为来保持您的应用与目标版本的向前兼容性。 应用仍可在较低版本上运行（最低版本为 minSdkVersion）。</li>
+</ul>
+</li>
+<li>compileSdkVersion<ul>
+<li>Specifies the API level to compile your project against.</li>
+<li>在运行编译时的环境</li>
+<li>强烈建议编译时使用最新的SDK版本即最新的Android版本，避免新废弃的API，准备使用新的API</li>
+<li>if you use the Support Library, compiling with the latest SDK is a requirement for using the latest Support Library releases. 例如如果你使用23.1.1的Support Library，则compileSDKVersion必须使用23 第一个数字需要匹配</li>
+</ul>
+</li>
+<li>buildToolsVersion<ul>
+<li>Specifies the version of the SDK Build Tools to use when building your project. </li>
+<li>构建工具的版本号</li>
+</ul>
+</li>
+</ul>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">android</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/01/14/minSdkVersion-targetSdkVersion-compileSdkVersion代表的含义/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-Android-intentFlag介绍" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -982,11 +1093,11 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color3">随笔</a>
+                <a href="javascript:void(0)" class="js-tag color5">hexo</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">hexo</a>
+                <a href="javascript:void(0)" class="js-tag color3">随笔</a>
               </li>
             
             <div class="clearfix"></div>
