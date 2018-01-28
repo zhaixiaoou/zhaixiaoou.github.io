@@ -158,6 +158,132 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-Activity-View-Window的联系" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/01/28/Activity-View-Window的联系/">Activity View Window的联系</a>
+    </h1>
+  
+
+        
+        <a href="/2018/01/28/Activity-View-Window的联系/" class="archive-article-date">
+  	<time datetime="2018-01-28T07:28:30.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-01-28</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h4 id="Activity-View-Window分别是什么？"><a href="#Activity-View-Window分别是什么？" class="headerlink" title="Activity View Window分别是什么？"></a>Activity View Window分别是什么？</h4><p><b>Activity</b> : Android四大组件之一，存放View组件的容器，也是我们界面的载体，可以用来展示一个界面，它有一个setContentView()方法，可以将我们定义的布局设置到界面上。<br><br><b>View</b> : 这个类代表了用户界面组件的基本构件。<br><br><b>Window</b>: 抽象基类，用于顶级窗口外观和行为策略。The only existing implementation of this abstract class is android.view.PhoneWindow, which you should instantiate when needing a Window.</p>
+<h4 id="Activity的setContentView-都做了哪些操作呢"><a href="#Activity的setContentView-都做了哪些操作呢" class="headerlink" title="Activity的setContentView()都做了哪些操作呢"></a>Activity的setContentView()都做了哪些操作呢</h4><p>Activity.setContentView(intresId) 该方法在Activity类中，该方法只是简单的回调Window对象，具体为PhoneWindow对象的setContentView()方法实现。</p>
+<pre><code>public void setContentView(@LayoutRes int layoutResID) {
+    getWindow().setContentView(layoutResID);
+    initWindowDecorActionBar();
+}
+
+public Window getWindow() { 
+    return mWindow;   //Window对象，本质上是一个PhoneWindow对象 
+} 
+</code></pre><p>PhoneWindow.setContentView()方法</p>
+<pre><code>ViewGroup mContentParent;
+
+     @Override
+public void setContentView(int layoutResID) {
+   ...
+   //是否是第一次调用setContentView方法， 如果是第一次调用，则mDecor和mContentParent对象都为空  
+    if (mContentParent == null) {
+        installDecor();
+    } else if (!hasFeature(FEATURE_CONTENT_TRANSITIONS)) {
+    //如果没有设置过feature，移除其内部所有的子Views
+        mContentParent.removeAllViews();
+    }
+    ...
+}
+</code></pre><p>   mContentParent是个ViewGroup包含我们整个布局文件，installDecor就是去初始化mContentParent和创建DecorView<br></p>
+<pre><code>private void installDecor() {
+     if (mDecor == null) { //如果decorView为空，就生成一个
+      mDecor = generateDecor(-1);
+        ...
+  }  else { //否则将phoneWindow设置到decorView上
+      mDecor.setWindow(this);
+  }
+  if (mContentParent == null) { 
+          //根据当前的主题设置根ViewGoup
+      mContentParent = generateLayout(mDecor);
+      ...
+    } else {
+            ...
+    }
+}
+</code></pre><p>   DecorView</p>
+<pre><code>       DecorView(Context context, int featureId, PhoneWindow window,
+        WindowManager.LayoutParams params) {
+    super(context);
+    mFeatureId = featureId;
+        ...
+        //把Android系统中的非标准度量尺寸转变为标准度量尺寸
+    updateAvailableWidth();
+    setWindow(window);
+    ...
+}
+</code></pre><p>  至此，Activity、View、Window就联系在一起了。即通过setContentView()方法，创建DecorView，并将Window设置上，再利用该DecorView生成一个ViewGroup。<br><br>  可见，DecorView是核心。</p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">android</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/01/28/Activity-View-Window的联系/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-minSdkVersion-targetSdkVersion-compileSdkVersion代表的含义" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     

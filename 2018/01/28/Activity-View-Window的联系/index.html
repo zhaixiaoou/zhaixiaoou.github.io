@@ -6,19 +6,19 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="https://zhaixiaoou.com">
-  <title>minSdkVersion targetSdkVersion compileSdkVersion代表的含义 | xiaoou&#39;s blog</title>
+  <title>Activity View Window的联系 | xiaoou&#39;s blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="参考地址：Picking your compileSdkVersion, minSdkVersion, and targetSdkVersion  minSdkVersion  一个用于指定应用运行所需最低API级别的整数 如果系统API级别低于该属性指定的值，Android系统将会阻止用户安装应用 应该始终声明该属性  注意：如果您不声明该属性，系统将假定默认值为“1”，这表示您的应用兼容所有A">
+  <meta name="description" content="Activity View Window分别是什么？Activity : Android四大组件之一，存放View组件的容器，也是我们界面的载体，可以用来展示一个界面，它有一个setContentView()方法，可以将我们定义的布局设置到界面上。View : 这个类代表了用户界面组件的基本构件。Window: 抽象基类，用于顶级窗口外观和行为策略。The only existing implem">
 <meta name="keywords" content="android">
 <meta property="og:type" content="article">
-<meta property="og:title" content="minSdkVersion targetSdkVersion compileSdkVersion代表的含义">
-<meta property="og:url" content="https://zhaixiaoou.com/2018/01/14/minSdkVersion-targetSdkVersion-compileSdkVersion代表的含义/index.html">
+<meta property="og:title" content="Activity View Window的联系">
+<meta property="og:url" content="https://zhaixiaoou.com/2018/01/28/Activity-View-Window的联系/index.html">
 <meta property="og:site_name" content="xiaoou&#39;s blog">
-<meta property="og:description" content="参考地址：Picking your compileSdkVersion, minSdkVersion, and targetSdkVersion  minSdkVersion  一个用于指定应用运行所需最低API级别的整数 如果系统API级别低于该属性指定的值，Android系统将会阻止用户安装应用 应该始终声明该属性  注意：如果您不声明该属性，系统将假定默认值为“1”，这表示您的应用兼容所有A">
-<meta property="og:updated_time" content="2018-01-14T12:27:23.000Z">
+<meta property="og:description" content="Activity View Window分别是什么？Activity : Android四大组件之一，存放View组件的容器，也是我们界面的载体，可以用来展示一个界面，它有一个setContentView()方法，可以将我们定义的布局设置到界面上。View : 这个类代表了用户界面组件的基本构件。Window: 抽象基类，用于顶级窗口外观和行为策略。The only existing implem">
+<meta property="og:updated_time" content="2018-01-28T07:29:41.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="minSdkVersion targetSdkVersion compileSdkVersion代表的含义">
-<meta name="twitter:description" content="参考地址：Picking your compileSdkVersion, minSdkVersion, and targetSdkVersion  minSdkVersion  一个用于指定应用运行所需最低API级别的整数 如果系统API级别低于该属性指定的值，Android系统将会阻止用户安装应用 应该始终声明该属性  注意：如果您不声明该属性，系统将假定默认值为“1”，这表示您的应用兼容所有A">
+<meta name="twitter:title" content="Activity View Window的联系">
+<meta name="twitter:description" content="Activity View Window分别是什么？Activity : Android四大组件之一，存放View组件的容器，也是我们界面的载体，可以用来展示一个界面，它有一个setContentView()方法，可以将我们定义的布局设置到界面上。View : 这个类代表了用户界面组件的基本构件。Window: 抽象基类，用于顶级窗口外观和行为策略。The only existing implem">
   
     <link rel="alternative" href="/atom.xml" title="xiaoou&#39;s blog" type="application/atom+xml">
   
@@ -158,64 +158,79 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-minSdkVersion-targetSdkVersion-compileSdkVersion代表的含义" class="article article-type-post " itemscope itemprop="blogPost">
+            <article id="post-Activity-View-Window的联系" class="article article-type-post " itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 class="article-title" itemprop="name">
-      minSdkVersion targetSdkVersion compileSdkVersion代表的含义
+      Activity View Window的联系
     </h1>
   
 
         
-        <a href="/2018/01/14/minSdkVersion-targetSdkVersion-compileSdkVersion代表的含义/" class="archive-article-date">
-  	<time datetime="2018-01-14T12:26:41.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-01-14</time>
+        <a href="/2018/01/28/Activity-View-Window的联系/" class="archive-article-date">
+  	<time datetime="2018-01-28T07:28:30.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-01-28</time>
 </a>
         
       </header>
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>参考地址：<a href="https://medium.com/google-developers/picking-your-compilesdkversion-minsdkversion-targetsdkversion-a098a0341ebd" target="_blank" rel="noopener"><em>Picking your compileSdkVersion, minSdkVersion, and targetSdkVersion</em></a></p>
-<ul>
-<li><p>minSdkVersion</p>
-<ul>
-<li>一个用于指定应用运行所需最低API级别的整数</li>
-<li>如果系统API级别低于该属性指定的值，Android系统将会阻止用户安装应用</li>
-<li><p>应该始终声明该属性</p>
-<blockquote>
-<p>注意：如果您不声明该属性，系统将假定默认值为“1”，这表示您的应用兼容所有<br>Android 版本。 如果您的应用并不兼容所有版本（例如，它使用 API 级别 3 中引入的 API），并且您尚未声明正确的 minSdkVersion，则当应用安装在 API 级别小于 3 的系统上时，应用将在运行时尝试访问不可用的 API 时发生崩溃。 因此，请务必在 minSdkVersion 属性中声明合适的 API 级别。</p>
-</blockquote>
-</li>
-<li><p>如果你设置的minSdk = 13, 但是你使用的方法只有在14之后才有的，AndroidStudio会报错提示。</p>
-<blockquote>
-<p>if (Build.VERSION.SDK_INT &gt;=Build.VERSION_CODES.M) {<br>  <br> // 高版本有的方法<br><br>  equestPermissions(newString[]{“”},REQUEST_CODE_ASK_CALL_PHONE);<br><br>}else{<br>  <br>//不需要申请权限直接调用我们需要处理的方法。<br><br>}</p>
-</blockquote>
-</li>
-</ul>
-</li>
-<li><p>targetSdkVersion</p>
-<ul>
-<li>一个用于指定应用的目标API级别</li>
-<li>如果未设置，默认与minSdkVersion指定的值相等</li>
-<li>该属性用于通知系统，您已针对目标版本进行测试，并且系统不应启用任何兼容性行为来保持您的应用与目标版本的向前兼容性。 应用仍可在较低版本上运行（最低版本为 minSdkVersion）。</li>
-</ul>
-</li>
-<li>compileSdkVersion<ul>
-<li>Specifies the API level to compile your project against.</li>
-<li>在运行编译时的环境</li>
-<li>强烈建议编译时使用最新的SDK版本即最新的Android版本，避免新废弃的API，准备使用新的API</li>
-<li>if you use the Support Library, compiling with the latest SDK is a requirement for using the latest Support Library releases. 例如如果你使用23.1.1的Support Library，则compileSDKVersion必须使用23 第一个数字需要匹配</li>
-</ul>
-</li>
-<li>buildToolsVersion<ul>
-<li>Specifies the version of the SDK Build Tools to use when building your project. </li>
-<li>构建工具的版本号</li>
-</ul>
-</li>
-</ul>
+        <h4 id="Activity-View-Window分别是什么？"><a href="#Activity-View-Window分别是什么？" class="headerlink" title="Activity View Window分别是什么？"></a>Activity View Window分别是什么？</h4><p><b>Activity</b> : Android四大组件之一，存放View组件的容器，也是我们界面的载体，可以用来展示一个界面，它有一个setContentView()方法，可以将我们定义的布局设置到界面上。<br><br><b>View</b> : 这个类代表了用户界面组件的基本构件。<br><br><b>Window</b>: 抽象基类，用于顶级窗口外观和行为策略。The only existing implementation of this abstract class is android.view.PhoneWindow, which you should instantiate when needing a Window.</p>
+<h4 id="Activity的setContentView-都做了哪些操作呢"><a href="#Activity的setContentView-都做了哪些操作呢" class="headerlink" title="Activity的setContentView()都做了哪些操作呢"></a>Activity的setContentView()都做了哪些操作呢</h4><p>Activity.setContentView(intresId) 该方法在Activity类中，该方法只是简单的回调Window对象，具体为PhoneWindow对象的setContentView()方法实现。</p>
+<pre><code>public void setContentView(@LayoutRes int layoutResID) {
+    getWindow().setContentView(layoutResID);
+    initWindowDecorActionBar();
+}
+
+public Window getWindow() { 
+    return mWindow;   //Window对象，本质上是一个PhoneWindow对象 
+} 
+</code></pre><p>PhoneWindow.setContentView()方法</p>
+<pre><code>ViewGroup mContentParent;
+
+     @Override
+public void setContentView(int layoutResID) {
+   ...
+   //是否是第一次调用setContentView方法， 如果是第一次调用，则mDecor和mContentParent对象都为空  
+    if (mContentParent == null) {
+        installDecor();
+    } else if (!hasFeature(FEATURE_CONTENT_TRANSITIONS)) {
+    //如果没有设置过feature，移除其内部所有的子Views
+        mContentParent.removeAllViews();
+    }
+    ...
+}
+</code></pre><p>   mContentParent是个ViewGroup包含我们整个布局文件，installDecor就是去初始化mContentParent和创建DecorView<br></p>
+<pre><code>private void installDecor() {
+     if (mDecor == null) { //如果decorView为空，就生成一个
+      mDecor = generateDecor(-1);
+        ...
+  }  else { //否则将phoneWindow设置到decorView上
+      mDecor.setWindow(this);
+  }
+  if (mContentParent == null) { 
+          //根据当前的主题设置根ViewGoup
+      mContentParent = generateLayout(mDecor);
+      ...
+    } else {
+            ...
+    }
+}
+</code></pre><p>   DecorView</p>
+<pre><code>       DecorView(Context context, int featureId, PhoneWindow window,
+        WindowManager.LayoutParams params) {
+    super(context);
+    mFeatureId = featureId;
+        ...
+        //把Android系统中的非标准度量尺寸转变为标准度量尺寸
+    updateAvailableWidth();
+    setWindow(window);
+    ...
+}
+</code></pre><p>  至此，Activity、View、Window就联系在一起了。即通过setContentView()方法，创建DecorView，并将Window设置上，再利用该DecorView生成一个ViewGroup。<br><br>  可见，DecorView是核心。</p>
 
       
 
@@ -306,7 +321,7 @@
     <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
     <p>扫一扫，分享到微信</p>
     <div class="wx-qrcode">
-      <img src="//pan.baidu.com/share/qrcode?url=https://zhaixiaoou.com/2018/01/14/minSdkVersion-targetSdkVersion-compileSdkVersion代表的含义/" alt="微信分享二维码">
+      <img src="//pan.baidu.com/share/qrcode?url=https://zhaixiaoou.com/2018/01/28/Activity-View-Window的联系/" alt="微信分享二维码">
     </div>
 </div>
 
@@ -320,18 +335,9 @@
   
 <nav id="article-nav">
   
-    <a href="/2018/01/28/Activity-View-Window的联系/" id="article-nav-newer" class="article-nav-link-wrap">
-      <i class="icon-circle-left"></i>
-      <div class="article-nav-title">
-        
-          Activity View Window的联系
-        
-      </div>
-    </a>
   
-  
-    <a href="/2018/01/14/Android-intentFlag介绍/" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">Android intentFlag介绍</div>
+    <a href="/2018/01/14/minSdkVersion-targetSdkVersion-compileSdkVersion代表的含义/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">minSdkVersion targetSdkVersion compileSdkVersion代表的含义</div>
       <i class="icon-circle-right"></i>
     </a>
   
@@ -362,8 +368,8 @@
   <div id="cloud-tie-wrapper" class="cloud-tie-wrapper"></div>
 <script>
   var cloudTieConfig = {
-    url: "https://zhaixiaoou.com/2018/01/14/minSdkVersion-targetSdkVersion-compileSdkVersion代表的含义/", 
-    sourceId: "minSdkVersion-targetSdkVersion-compileSdkVersion代表的含义",
+    url: "https://zhaixiaoou.com/2018/01/28/Activity-View-Window的联系/", 
+    sourceId: "Activity-View-Window的联系",
     productKey: "true",
     target: "cloud-tie-wrapper"
   };
