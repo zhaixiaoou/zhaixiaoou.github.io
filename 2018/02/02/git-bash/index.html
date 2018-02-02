@@ -6,19 +6,31 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="https://zhaixiaoou.com">
-  <title>hexo+github 搭建自己的博客 | xiaoou&#39;s blog</title>
+  <title>Git命令---撤销操作篇 | xiaoou&#39;s blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="作为小白一名，大神请自行飘过，不用理会！ hexo是一款基于Node.js的静态博客框架，github就不多说了。 配置环境 Node.js。如果没有node.js 环境，请自行安装-&amp;gt; 官方网站 Git Github账号 sourceTree(Git客户端管理工具，可以选择其他更好的)  配置Github 建立repository 建立与你用户名对应的仓库，仓库名必须为your_user_">
-<meta name="keywords" content="hexo">
+  <meta name="description" content="新建分支 git branch [branch-name]   分支上传 git push origin [branch-name](origin 你的远程库)   切换分支 git checkout [branch-name]   删除本地分支 git branch -d [branch-name]    合并指定分支到当前分支 git merge [branch]合并分支时，可能发生冲突">
+<meta name="keywords" content="git">
 <meta property="og:type" content="article">
-<meta property="og:title" content="hexo+github 搭建自己的博客">
-<meta property="og:url" content="https://zhaixiaoou.com/2017/12/19/hexo-github-搭建自己的博客/index.html">
+<meta property="og:title" content="Git命令---撤销操作篇">
+<meta property="og:url" content="https://zhaixiaoou.com/2018/02/02/git-bash/index.html">
 <meta property="og:site_name" content="xiaoou&#39;s blog">
-<meta property="og:description" content="作为小白一名，大神请自行飘过，不用理会！ hexo是一款基于Node.js的静态博客框架，github就不多说了。 配置环境 Node.js。如果没有node.js 环境，请自行安装-&amp;gt; 官方网站 Git Github账号 sourceTree(Git客户端管理工具，可以选择其他更好的)  配置Github 建立repository 建立与你用户名对应的仓库，仓库名必须为your_user_">
-<meta property="og:updated_time" content="2017-12-19T15:24:53.000Z">
+<meta property="og:description" content="新建分支 git branch [branch-name]   分支上传 git push origin [branch-name](origin 你的远程库)   切换分支 git checkout [branch-name]   删除本地分支 git branch -d [branch-name]    合并指定分支到当前分支 git merge [branch]合并分支时，可能发生冲突">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhaixiaoou/MarkdownPhotos/master/res/805E7F32-7FD9-4927-ABE2-645207D9CF87.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhaixiaoou/MarkdownPhotos/master/res/267431C1-723C-4D9B-95AF-3525F9145811.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhaixiaoou/MarkdownPhotos/master/res/D9A73A31-9B5F-40A8-836B-23CCA09A42FA.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhaixiaoou/MarkdownPhotos/master/res/4A38F0A0-60D4-4EE4-BB06-F8C0503440A4.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhaixiaoou/MarkdownPhotos/master/res/39F7DD21-436F-4782-8F51-CB336B59BFC5.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhaixiaoou/MarkdownPhotos/master/res/875FFC47-54D2-47AF-899E-093DD0D0A7FD.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhaixiaoou/MarkdownPhotos/master/res/081A9FB4-2E5C-43C0-8E57-A2E600B31B4A.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhaixiaoou/MarkdownPhotos/master/res/03400067-3EB2-40EA-B3FA-C3D3373B9404.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhaixiaoou/MarkdownPhotos/master/res/8D4E9208-554C-47BE-AB8F-DF03A8BF0719.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhaixiaoou/MarkdownPhotos/master/res/DDA23FE2-7E4F-4283-94A3-045884034F21.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhaixiaoou/MarkdownPhotos/master/res/D4D91350-673C-4D4D-87A7-8A62A3059F94.png">
+<meta property="og:updated_time" content="2018-02-02T08:03:07.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="hexo+github 搭建自己的博客">
-<meta name="twitter:description" content="作为小白一名，大神请自行飘过，不用理会！ hexo是一款基于Node.js的静态博客框架，github就不多说了。 配置环境 Node.js。如果没有node.js 环境，请自行安装-&amp;gt; 官方网站 Git Github账号 sourceTree(Git客户端管理工具，可以选择其他更好的)  配置Github 建立repository 建立与你用户名对应的仓库，仓库名必须为your_user_">
+<meta name="twitter:title" content="Git命令---撤销操作篇">
+<meta name="twitter:description" content="新建分支 git branch [branch-name]   分支上传 git push origin [branch-name](origin 你的远程库)   切换分支 git checkout [branch-name]   删除本地分支 git branch -d [branch-name]    合并指定分支到当前分支 git merge [branch]合并分支时，可能发生冲突">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/zhaixiaoou/MarkdownPhotos/master/res/805E7F32-7FD9-4927-ABE2-645207D9CF87.png">
   
     <link rel="alternative" href="/atom.xml" title="xiaoou&#39;s blog" type="application/atom+xml">
   
@@ -158,91 +170,86 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            <article id="post-hexo-github-搭建自己的博客" class="article article-type-post " itemscope itemprop="blogPost">
+            <article id="post-git-bash" class="article article-type-post " itemscope itemprop="blogPost">
   <div class="article-inner">
     
       <header class="article-header">
         
   
     <h1 class="article-title" itemprop="name">
-      hexo+github 搭建自己的博客
+      Git命令---撤销操作篇
     </h1>
   
 
         
-        <a href="/2017/12/19/hexo-github-搭建自己的博客/" class="archive-article-date">
-  	<time datetime="2017-12-19T15:19:22.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-12-19</time>
+        <a href="/2018/02/02/git-bash/" class="archive-article-date">
+  	<time datetime="2018-02-02T07:59:20.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-02-02</time>
 </a>
         
       </header>
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>作为小白一名，大神请自行飘过，不用理会！</p>
-<p>hexo是一款基于Node.js的静态博客框架，github就不多说了。</p>
-<h4 id="配置环境"><a href="#配置环境" class="headerlink" title="配置环境"></a>配置环境</h4><ul>
-<li>Node.js。如果没有<code>node.js</code> 环境，请自行安装-&gt; <a href="https://nodejs.org/" target="_blank" rel="noopener">官方网站</a></li>
-<li>Git</li>
-<li>Github账号</li>
-<li>sourceTree(Git客户端管理工具，可以选择其他更好的)</li>
-</ul>
-<h3 id="配置Github"><a href="#配置Github" class="headerlink" title="配置Github"></a>配置Github</h3><ul>
-<li>建立repository<br><ul>
-<li>建立与你用户名对应的仓库，仓库名必须为<code>your_user_name.github.io</code>固定写法</li>
+        <ul>
+<li>新建分支<ul>
+<li><code>git branch [branch-name]</code></li>
 </ul>
 </li>
+<li>分支上传<ul>
+<li><code>git push origin [branch-name]</code>(origin 你的远程库)</li>
 </ul>
-<h3 id="安装Hexo"><a href="#安装Hexo" class="headerlink" title="安装Hexo"></a>安装Hexo</h3><p>在拉取的仓库根目录blog安装Hexo</p>
+</li>
+<li>切换分支<ul>
+<li><code>git checkout [branch-name]</code></li>
+</ul>
+</li>
+<li>删除本地分支<ul>
+<li><code>git branch -d [branch-name]</code> </li>
+</ul>
+</li>
+<li>合并指定分支到当前分支<ul>
+<li><code>git merge [branch]</code><br>合并分支时，可能发生冲突<br><img src="https://raw.githubusercontent.com/zhaixiaoou/MarkdownPhotos/master/res/805E7F32-7FD9-4927-ABE2-645207D9CF87.png" alt="image"></li>
+</ul>
+</li>
+<li>解决冲突<ul>
+<li><code>git status</code>发生冲突时，我们你可以利用<code>git status</code>看下状态，可以看出文件存在冲突<br>  <img src="https://raw.githubusercontent.com/zhaixiaoou/MarkdownPhotos/master/res/267431C1-723C-4D9B-95AF-3525F9145811.png" alt="image"><br>这时，我们通过</li>
+<li><code>vim [file-name]</code> 打开文件<br><img src="https://raw.githubusercontent.com/zhaixiaoou/MarkdownPhotos/master/res/D9A73A31-9B5F-40A8-836B-23CCA09A42FA.png" alt="image"></li>
+<li>按字母<code>i</code>开始编辑 </li>
+<li>按<code>esc</code>退出编辑</li>
+<li>输入<code>:wq</code>保存</li>
+<li><code>git add .</code></li>
+<li><code>git commit -m &#39;message&#39;</code></li>
+<li><code>git push</code></li>
+</ul>
+</li>
+<li><p><code>git add</code>撤销操作</p>
 <ul>
-<li>安装Hexo:<ul>
-<li><code>sudo npm install -g hexo</code></li>
+<li><p><code>git add .</code> 将所有改变的文件放入暂存区，</p>
+<p>那么如何取消暂存其中的一个文件呢？其实<code>git status</code>命令输出已经告诉我们了<br><img src="https://raw.githubusercontent.com/zhaixiaoou/MarkdownPhotos/master/res/4A38F0A0-60D4-4EE4-BB06-F8C0503440A4.png" alt="image"></p>
+</li>
+<li><code>git reset HEAD [file-name]</code> 取消某个文件的暂存</li>
+<li><code>git checkout --&lt;file&gt;..</code> 取消对文件的修改 (上图中提示信息所示)</li>
 </ul>
 </li>
-<li><p>初始化Hexo:</p>
+<li><p>git撤销已经push到远端的commit</p>
 <ul>
-<li><code>hexo init</code></li>
-</ul>
-<p>至此，安装工作全部完成。blog就是你博客的根目录，所以的操作就在这个文件夹完成。<br></p>
-</li>
-<li><p>生成静态页面：</p>
-<ul>
-<li><code>hexo generate</code> 或者<code>hexo g</code></li>
-</ul>
-</li>
-<li><p>启动本地服务，进行文章预览调试：</p>
-<ul>
-<li><code>hexo server</code>  浏览器输入<a href="http://localhost:4000" target="_blank" rel="noopener">http://localhost:4000</a></li>
-</ul>
+<li><code>git log</code> 打印出commit的版本号<br><img src="https://raw.githubusercontent.com/zhaixiaoou/MarkdownPhotos/master/res/39F7DD21-436F-4782-8F51-CB336B59BFC5.png" alt="image"></li>
+<li><code>git reset --hard &lt;版本号&gt;</code></li>
+<li>提交 <code>git push origin &lt;分支号&gt;</code><br>会提示本地版本落后于远端的版本<br><img src="https://raw.githubusercontent.com/zhaixiaoou/MarkdownPhotos/master/res/875FFC47-54D2-47AF-899E-093DD0D0A7FD.png" alt="image"><br>为了覆盖远端的版本信息，是远端的仓库也回退到相应的版本，需要加上参数<code>--force</code></li>
+<li><p><code>git push origin &lt;分支名&gt; --force</code></p>
+<p>到这，如果没什么问题改结束了，But something always go wrong。<br><img src="https://raw.githubusercontent.com/zhaixiaoou/MarkdownPhotos/master/res/081A9FB4-2E5C-43C0-8E57-A2E600B31B4A.png" alt="image"></p>
+<blockquote>
+<p>You are not allowed to force push code to a protected branch on this project.</p>
+</blockquote>
+<p>What!!! master分支是“protected branch”<br><img src="https://raw.githubusercontent.com/zhaixiaoou/MarkdownPhotos/master/res/03400067-3EB2-40EA-B3FA-C3D3373B9404.png" alt="image"><br>Project Setting<br><img src="https://raw.githubusercontent.com/zhaixiaoou/MarkdownPhotos/master/res/8D4E9208-554C-47BE-AB8F-DF03A8BF0719.png" alt="image"><br><img src="https://raw.githubusercontent.com/zhaixiaoou/MarkdownPhotos/master/res/DDA23FE2-7E4F-4283-94A3-045884034F21.png" alt="image"><br><b>只需要把该分支<code>Unprotect</code>,就可以愉快的玩耍了</b><br><br><b>撤销完成之后，记得还把该分支受保护哦，毕竟master分支也不是说要回滚就能回滚</b></p>
 </li>
 </ul>
-<h3 id="建立关联"><a href="#建立关联" class="headerlink" title="建立关联"></a>建立关联</h3><p>在blog本地目录下，找到<code>_config.yml</code>文件<br></p>
-<ul>
-<li>修改 <code>public_dir</code> 为<code>./</code><br></li>
-<li>修改deploy为：<br><br><code>deploy:
-type: git
-repo: https://github.com/zhaixiaoou/zhaixiaoou.github.io.git
-branch: master</code><ul>
-<li>Site下可自行设置（博客的title、描述、作者等等）</li>
-<li>URL 可设置为<code>https://zhaixiaoou.github.io/</code> （your_user_name）</li>
-<li><h5 id="执行命令-npm-install-hexo-deployer-git-save"><a href="#执行命令-npm-install-hexo-deployer-git-save" class="headerlink" title="执行命令 npm install hexo-deployer-git --save"></a>执行命令 <code>npm install hexo-deployer-git --save</code></h5></li>
-<li><h5 id="配置命令-hexo-deploy"><a href="#配置命令-hexo-deploy" class="headerlink" title="配置命令 hexo deploy"></a>配置命令 <code>hexo deploy</code></h5>然后在浏览器中输入<a href="http://zhaixiaoou.github.io" target="_blank" rel="noopener">http://zhaixiaoou.github.io</a> 输入你github账号的名字</li>
+</li>
+<li>git撤销commit但未push的操作<ul>
+<li><code>git log</code>找到之前提交的git commit的id</li>
+<li><code>git reset --hard id</code> 想要撤销的id</li>
+<li><code>git reset id</code> 将代码恢复到该id对应的版本<br><img src="https://raw.githubusercontent.com/zhaixiaoou/MarkdownPhotos/master/res/D4D91350-673C-4D4D-87A7-8A62A3059F94.png" alt="image"></li>
 </ul>
-</li>
-</ul>
-<h3 id="修改部署"><a href="#修改部署" class="headerlink" title="修改部署"></a>修改部署</h3><ul>
-<li>部署 <code>hexo g</code></li>
-<li>提交 <code>hexo d</code></li>
-</ul>
-<h3 id="常用命令"><a href="#常用命令" class="headerlink" title="常用命令"></a>常用命令</h3><ul>
-<li><p>hexo new”postName” #新建文章</p>
-</li>
-<li><p>hexo new page”pageName” #新建页面</p>
-</li>
-<li><p>hexo generate #生成静态页面至public目录</p>
-</li>
-<li><p>hexo server #开启预览访问端口（默认端口4000，’ctrl + c’关闭server）</p>
-</li>
-<li><p>hexo deploy #将.deploy目录部署到GitHub</p>
 </li>
 </ul>
 
@@ -279,7 +286,7 @@ branch: master</code><ul>
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">hexo</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">git</a>
         		</li>
       		
 		</ul>
@@ -335,7 +342,7 @@ branch: master</code><ul>
     <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
     <p>扫一扫，分享到微信</p>
     <div class="wx-qrcode">
-      <img src="//pan.baidu.com/share/qrcode?url=https://zhaixiaoou.com/2017/12/19/hexo-github-搭建自己的博客/" alt="微信分享二维码">
+      <img src="//pan.baidu.com/share/qrcode?url=https://zhaixiaoou.com/2018/02/02/git-bash/" alt="微信分享二维码">
     </div>
 </div>
 
@@ -349,18 +356,9 @@ branch: master</code><ul>
   
 <nav id="article-nav">
   
-    <a href="/2018/01/07/Android启动模式详解/" id="article-nav-newer" class="article-nav-link-wrap">
-      <i class="icon-circle-left"></i>
-      <div class="article-nav-title">
-        
-          Android启动模式详解
-        
-      </div>
-    </a>
   
-  
-    <a href="/2017/12/19/Android-WebViewJsBridge/" id="article-nav-older" class="article-nav-link-wrap">
-      <div class="article-nav-title">Android-WebViewJsBridge</div>
+    <a href="/2018/01/28/Activity-View-Window的联系/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Activity View Window的联系</div>
       <i class="icon-circle-right"></i>
     </a>
   
@@ -391,8 +389,8 @@ branch: master</code><ul>
   <div id="cloud-tie-wrapper" class="cloud-tie-wrapper"></div>
 <script>
   var cloudTieConfig = {
-    url: "https://zhaixiaoou.com/2017/12/19/hexo-github-搭建自己的博客/", 
-    sourceId: "hexo-github-搭建自己的博客",
+    url: "https://zhaixiaoou.com/2018/02/02/git-bash/", 
+    sourceId: "git-bash",
     productKey: "true",
     target: "cloud-tie-wrapper"
   };
