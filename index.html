@@ -158,6 +158,132 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-Android-Gradle插件版本-必须的Gradle版本与构建工具版本-buildToolsVersion的关系" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/03/29/Android-Gradle插件版本-必须的Gradle版本与构建工具版本-buildToolsVersion的关系/">Android Gradle插件版本 必须的Gradle版本与构建工具版本(buildToolsVersion的关系)</a>
+    </h1>
+  
+
+        
+        <a href="/2018/03/29/Android-Gradle插件版本-必须的Gradle版本与构建工具版本-buildToolsVersion的关系/" class="archive-article-date">
+  	<time datetime="2018-03-29T10:13:17.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-03-29</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h4 id="对应关系"><a href="#对应关系" class="headerlink" title="对应关系"></a>对应关系</h4><table>
+<thead>
+<tr>
+<th>插件版本</th>
+<th>必须的Gradle版本</th>
+<th>构建工具版本(buildToolsVersion)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2.0.0-2.1.2</td>
+<td>2.10-2.13</td>
+<td>21.1.1+</td>
+</tr>
+<tr>
+<td>2.1.3-2.2.3</td>
+<td>2.14.1+</td>
+<td>23.0.2+</td>
+</tr>
+<tr>
+<td>2.3.0+</td>
+<td>3.3+</td>
+<td>25.0.0+</td>
+</tr>
+<tr>
+<td>3.0.0+</td>
+<td>4.1+</td>
+<td>26.0.2+ 不再需要为构建工具指定版本 - 插件默认使用最低要求的版本。可以删除该android.buildToolsVersion属性</td>
+</tr>
+<tr>
+<td>3.1.0+</td>
+<td>4.4+</td>
+<td>27.0.3+ 不再需要为构建工具指定版本 - 插件默认使用最低要求的版本。可以删除该android.buildToolsVersion属性</td>
+</tr>
+</tbody>
+</table>
+<p>该图表由Android官方文档整理得出。<a href="https://developer.android.com/studio/releases/gradle-plugin.html#3-0-0" target="_blank" rel="noopener">Android官方文档</a></p>
+<h3 id="Gradle插件由老版本迁移到3-0-0需要注意的地方"><a href="#Gradle插件由老版本迁移到3-0-0需要注意的地方" class="headerlink" title="Gradle插件由老版本迁移到3.0.0需要注意的地方"></a>Gradle插件由老版本迁移到3.0.0需要注意的地方</h3><h4 id="更新Gradle版本"><a href="#更新Gradle版本" class="headerlink" title="更新Gradle版本"></a>更新Gradle版本</h4><p>根据上面表格可以得知,Gradle版本需要4.1+。<br><br>手动更新Gradle,请更新gradle-wrapper.properties中的地址，如下所示：</p>
+<pre><code>distributionUrl=
+https\://services.gradle.org/distributions/gradle-4.1-all.zip
+</code></pre><h4 id="应用插件"><a href="#应用插件" class="headerlink" title="应用插件"></a>应用插件</h4><p>如果正在使用Android Studio 3.0或者更高的版本打开现有项目，请按照提示操作，将您的项目自动更新到最新版本的Android插件。要手动更新您的项目，请包含Maven存储区把那个在您的项目级<code>build.gradle</code>文件中更改插件版本，如下所示：</p>
+<pre><code>buildscript {    
+    repositories {
+        ...
+         // You need to add the following repository to download the
+        // new plugin.
+        google()
+    }
+    dependencies {
+        classpath &apos;com.android.tools.build:gradle:3.0.1&apos;
+    }
+}
+</code></pre><p>还有更多的变更目前没有用到，请移步到<a href="https://developer.android.com/studio/build/gradle-plugin-3-0-0-migration.html" target="_blank" rel="noopener">Android官方文档</a></p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">android</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/03/29/Android-Gradle插件版本-必须的Gradle版本与构建工具版本-buildToolsVersion的关系/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-git-bash" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
