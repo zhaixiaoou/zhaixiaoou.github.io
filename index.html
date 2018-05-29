@@ -158,6 +158,109 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-git-bash命令总结" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/05/29/git-bash命令总结/">git bash命令总结</a>
+    </h1>
+  
+
+        
+        <a href="/2018/05/29/git-bash命令总结/" class="archive-article-date">
+  	<time datetime="2018-05-29T06:01:17.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-05-29</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h4 id="新建分支"><a href="#新建分支" class="headerlink" title="新建分支"></a>新建分支</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git branch [branch-name]</span><br></pre></td></tr></table></figure>
+<h4 id="分支上传"><a href="#分支上传" class="headerlink" title="分支上传"></a>分支上传</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git push origin [branch-name] (origin 你的远程库)</span><br></pre></td></tr></table></figure>
+<h4 id="切换分支"><a href="#切换分支" class="headerlink" title="切换分支"></a>切换分支</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git checkout [branch-name]</span><br></pre></td></tr></table></figure>
+<h4 id="删除本地分支"><a href="#删除本地分支" class="headerlink" title="删除本地分支"></a>删除本地分支</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git branch -d [branch-name]</span><br></pre></td></tr></table></figure>
+<h4 id="合并指定分支到当前分支"><a href="#合并指定分支到当前分支" class="headerlink" title="合并指定分支到当前分支"></a>合并指定分支到当前分支</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git merge [branch]</span><br></pre></td></tr></table></figure>
+<ul>
+<li>合并分支时，可能发生冲突<br>  <img src="https://raw.githubusercontent.com/zhaixiaoou/MarkdownPhotos/master/res/805E7F32-7FD9-4927-ABE2-645207D9CF87.png" alt="image"></li>
+<li>解决冲突<ul>
+<li><code>git status</code>发生冲突时，我们你可以利用<code>git status</code>看下状态，可以看出文件存在冲突<br>  <img src="https://raw.githubusercontent.com/zhaixiaoou/MarkdownPhotos/master/res/267431C1-723C-4D9B-95AF-3525F9145811.png" alt="image"><br>这时，我们通过</li>
+<li><code>vim [file-name]</code> 打开文件<br><img src="https://raw.githubusercontent.com/zhaixiaoou/MarkdownPhotos/master/res/D9A73A31-9B5F-40A8-836B-23CCA09A42FA.png" alt="image"></li>
+<li>按字母<code>i</code>开始编辑 </li>
+<li>按<code>esc</code>退出编辑</li>
+<li>输入<code>:wq</code>保存</li>
+<li><code>git add .</code></li>
+<li><code>git commit -m &#39;message&#39;</code></li>
+<li><code>git push</code></li>
+</ul>
+</li>
+</ul>
+<h4 id="Git-把已经推到远程文件的内容添加到-gitignore文件中"><a href="#Git-把已经推到远程文件的内容添加到-gitignore文件中" class="headerlink" title="Git 把已经推到远程文件的内容添加到.gitignore文件中"></a>Git 把已经推到远程文件的内容添加到.gitignore文件中</h4><blockquote>
+<p>你是否也遇到过这种情况，.gitignore文件已经创建好，推到远程，在写代码的过程中，又想把一些无用的文件添加到gitignore文件里面去，如果只是单纯的添加上，远程还有改文件，即使也到.gitignore里面也没有作用。</p>
+</blockquote>
+<p>then, 我们需要把想要加到.gitignore的文件先在远程删除。</p>
+<pre><code>git rm --cached filename/-r directory
+git commit &quot;xxxx&quot;
+git push
+</code></pre><p><b> Tips, 删除远程code文件夹时，要使用-r参数</b><br>    <img src="https://raw.githubusercontent.com/zhaixiaoou/MarkdownPhotos/master/res/D3688BB5-7A9F-4035-B18B-41F3455C4603.png" alt="image"></p>
+<h4 id="Git-清理无效的远程追踪分支"><a href="#Git-清理无效的远程追踪分支" class="headerlink" title="Git 清理无效的远程追踪分支"></a>Git 清理无效的远程追踪分支</h4><blockquote>
+<p>出错的问题没有复现，等复现了，再截图贴上</p>
+</blockquote>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git remote prune origin</span><br></pre></td></tr></table></figure>
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">git</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/05/29/git-bash命令总结/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-Android-Gradle插件版本-必须的Gradle版本与构建工具版本-buildToolsVersion的关系" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -304,67 +407,29 @@ https\://services.gradle.org/distributions/gradle-4.1-all.zip
     
     <div class="article-entry" itemprop="articleBody">
       
-        <ul>
-<li>新建分支<ul>
-<li><code>git branch [branch-name]</code></li>
-</ul>
-</li>
-<li>分支上传<ul>
-<li><code>git push origin [branch-name]</code>(origin 你的远程库)</li>
-</ul>
-</li>
-<li>切换分支<ul>
-<li><code>git checkout [branch-name]</code></li>
-</ul>
-</li>
-<li>删除本地分支<ul>
-<li><code>git branch -d [branch-name]</code> </li>
-</ul>
-</li>
-<li>合并指定分支到当前分支<ul>
-<li><code>git merge [branch]</code><br>合并分支时，可能发生冲突<br><img src="https://raw.githubusercontent.com/zhaixiaoou/MarkdownPhotos/master/res/805E7F32-7FD9-4927-ABE2-645207D9CF87.png" alt="image"></li>
-</ul>
-</li>
-<li>解决冲突<ul>
-<li><code>git status</code>发生冲突时，我们你可以利用<code>git status</code>看下状态，可以看出文件存在冲突<br>  <img src="https://raw.githubusercontent.com/zhaixiaoou/MarkdownPhotos/master/res/267431C1-723C-4D9B-95AF-3525F9145811.png" alt="image"><br>这时，我们通过</li>
-<li><code>vim [file-name]</code> 打开文件<br><img src="https://raw.githubusercontent.com/zhaixiaoou/MarkdownPhotos/master/res/D9A73A31-9B5F-40A8-836B-23CCA09A42FA.png" alt="image"></li>
-<li>按字母<code>i</code>开始编辑 </li>
-<li>按<code>esc</code>退出编辑</li>
-<li>输入<code>:wq</code>保存</li>
-<li><code>git add .</code></li>
-<li><code>git commit -m &#39;message&#39;</code></li>
-<li><code>git push</code></li>
-</ul>
-</li>
-<li><p><code>git add</code>撤销操作</p>
-<ul>
+        <h4 id="git-add-撤销操作"><a href="#git-add-撤销操作" class="headerlink" title="git add 撤销操作"></a>git add 撤销操作</h4><ul>
 <li><p><code>git add .</code> 将所有改变的文件放入暂存区，</p>
-<p>那么如何取消暂存其中的一个文件呢？其实<code>git status</code>命令输出已经告诉我们了<br><img src="https://raw.githubusercontent.com/zhaixiaoou/MarkdownPhotos/master/res/4A38F0A0-60D4-4EE4-BB06-F8C0503440A4.png" alt="image"></p>
+<p>  那么如何取消暂存其中的一个文件呢？其实<code>git status</code>命令输出已经告诉我们了<br>  <img src="https://raw.githubusercontent.com/zhaixiaoou/MarkdownPhotos/master/res/4A38F0A0-60D4-4EE4-BB06-F8C0503440A4.png" alt="image"></p>
 </li>
 <li><code>git reset HEAD [file-name]</code> 取消某个文件的暂存</li>
 <li><code>git checkout --&lt;file&gt;..</code> 取消对文件的修改 (上图中提示信息所示)</li>
 </ul>
-</li>
-<li><p>git撤销已经push到远端的commit</p>
-<ul>
-<li><code>git log</code> 打印出commit的版本号<br><img src="https://raw.githubusercontent.com/zhaixiaoou/MarkdownPhotos/master/res/39F7DD21-436F-4782-8F51-CB336B59BFC5.png" alt="image"></li>
+<h4 id="git撤销已经push到远端的commit"><a href="#git撤销已经push到远端的commit" class="headerlink" title="git撤销已经push到远端的commit"></a>git撤销已经push到远端的commit</h4><ul>
+<li><code>git log</code> 打印出commit的版本号<br>  <img src="https://raw.githubusercontent.com/zhaixiaoou/MarkdownPhotos/master/res/39F7DD21-436F-4782-8F51-CB336B59BFC5.png" alt="image"></li>
 <li><code>git reset --hard &lt;版本号&gt;</code></li>
-<li>提交 <code>git push origin &lt;分支号&gt;</code><br>会提示本地版本落后于远端的版本<br><img src="https://raw.githubusercontent.com/zhaixiaoou/MarkdownPhotos/master/res/875FFC47-54D2-47AF-899E-093DD0D0A7FD.png" alt="image"><br>为了覆盖远端的版本信息，是远端的仓库也回退到相应的版本，需要加上参数<code>--force</code></li>
+<li>提交 <code>git push origin &lt;分支号&gt;</code><br>  会提示本地版本落后于远端的版本<br>  <img src="https://raw.githubusercontent.com/zhaixiaoou/MarkdownPhotos/master/res/875FFC47-54D2-47AF-899E-093DD0D0A7FD.png" alt="image"><br>  为了覆盖远端的版本信息，是远端的仓库也回退到相应的版本，需要加上参数<code>--force</code></li>
 <li><p><code>git push origin &lt;分支名&gt; --force</code></p>
-<p>到这，如果没什么问题改结束了，But something always go wrong。<br><img src="https://raw.githubusercontent.com/zhaixiaoou/MarkdownPhotos/master/res/081A9FB4-2E5C-43C0-8E57-A2E600B31B4A.png" alt="image"></p>
+<p>  到这，如果没什么问题改结束了，But something always go wrong。<br>  <img src="https://raw.githubusercontent.com/zhaixiaoou/MarkdownPhotos/master/res/081A9FB4-2E5C-43C0-8E57-A2E600B31B4A.png" alt="image"></p>
 <blockquote>
 <p>You are not allowed to force push code to a protected branch on this project.</p>
 </blockquote>
-<p>What!!! master分支是“protected branch”<br><img src="https://raw.githubusercontent.com/zhaixiaoou/MarkdownPhotos/master/res/03400067-3EB2-40EA-B3FA-C3D3373B9404.png" alt="image"><br>Project Setting<br><img src="https://raw.githubusercontent.com/zhaixiaoou/MarkdownPhotos/master/res/8D4E9208-554C-47BE-AB8F-DF03A8BF0719.png" alt="image"><br><img src="https://raw.githubusercontent.com/zhaixiaoou/MarkdownPhotos/master/res/DDA23FE2-7E4F-4283-94A3-045884034F21.png" alt="image"><br><b>只需要把该分支<code>Unprotect</code>,就可以愉快的玩耍了</b><br><br><b>撤销完成之后，记得还把该分支受保护哦，毕竟master分支也不是说要回滚就能回滚</b></p>
+<p>  What!!! master分支是“protected branch”<br>  <img src="https://raw.githubusercontent.com/zhaixiaoou/MarkdownPhotos/master/res/03400067-3EB2-40EA-B3FA-C3D3373B9404.png" alt="image"><br>  Project Setting<br>  <img src="https://raw.githubusercontent.com/zhaixiaoou/MarkdownPhotos/master/res/8D4E9208-554C-47BE-AB8F-DF03A8BF0719.png" alt="image"><br>  <img src="https://raw.githubusercontent.com/zhaixiaoou/MarkdownPhotos/master/res/DDA23FE2-7E4F-4283-94A3-045884034F21.png" alt="image"><br>  <b>只需要把该分支<code>Unprotect</code>,就可以愉快的玩耍了</b><br><br>  <b>撤销完成之后，记得还把该分支受保护哦，毕竟master分支也不是说要回滚就能回滚</b></p>
 </li>
 </ul>
-</li>
-<li>git撤销commit但未push的操作<ul>
+<h4 id="git撤销commit但未push的操作"><a href="#git撤销commit但未push的操作" class="headerlink" title="git撤销commit但未push的操作"></a>git撤销commit但未push的操作</h4><ul>
 <li><code>git log</code>找到之前提交的git commit的id</li>
 <li><code>git reset --hard id</code> 想要撤销的id</li>
-<li><code>git reset id</code> 将代码恢复到该id对应的版本<br><img src="https://raw.githubusercontent.com/zhaixiaoou/MarkdownPhotos/master/res/D4D91350-673C-4D4D-87A7-8A62A3059F94.png" alt="image"></li>
-</ul>
-</li>
+<li><code>git reset id</code> 将代码恢复到该id对应的版本<br>  <img src="https://raw.githubusercontent.com/zhaixiaoou/MarkdownPhotos/master/res/D4D91350-673C-4D4D-87A7-8A62A3059F94.png" alt="image"></li>
 </ul>
 
       
@@ -1316,77 +1381,10 @@ mContext.runOnUiThread(new Runnable(){
 
 
   
-    <article id="post-hello-world" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/12/19/hello-world/">Hello World</a>
-    </h1>
-  
-
-        
-        <a href="/2017/12/19/hello-world/" class="archive-article-date">
-  	<time datetime="2017-12-19T14:40:56.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-12-19</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>Welcome to <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="noopener">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="noopener">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="noopener">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="noopener">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="noopener">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="noopener">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/deployment.html" target="_blank" rel="noopener">Deployment</a></p>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2017/12/19/hello-world/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
+    <nav id="page-nav">
+      <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/">Next &raquo;</a>
+    </nav>
   
 
 
