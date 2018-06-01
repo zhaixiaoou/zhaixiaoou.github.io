@@ -281,7 +281,10 @@ git push
     
     <div class="article-entry" itemprop="articleBody">
       
-        <h4 id="对应关系"><a href="#对应关系" class="headerlink" title="对应关系"></a>对应关系</h4><table>
+        <h4 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h4><blockquote>
+<p>Gradle 是一个基于Apache Ant和Apache Maven概念的项目自动化构建工具</p>
+</blockquote>
+<h4 id="对应关系"><a href="#对应关系" class="headerlink" title="对应关系"></a>对应关系</h4><table>
 <thead>
 <tr>
 <th>插件版本</th>
@@ -333,7 +336,45 @@ https\://services.gradle.org/distributions/gradle-4.1-all.zip
         classpath &apos;com.android.tools.build:gradle:3.0.1&apos;
     }
 }
-</code></pre><p>还有更多的变更目前没有用到，请移步到<a href="https://developer.android.com/studio/build/gradle-plugin-3-0-0-migration.html" target="_blank" rel="noopener">Android官方文档</a></p>
+</code></pre><p>下面的内容，需要我们了解 Runtime和complieTime的定义与区别</p>
+<h4 id="run-time和-complie-time的定义及区别"><a href="#run-time和-complie-time的定义及区别" class="headerlink" title="run time和 complie time的定义及区别"></a>run time和 complie time的定义及区别</h4><h5 id="run-time：运行时"><a href="#run-time：运行时" class="headerlink" title="run time：运行时"></a>run time：运行时</h5><blockquote>
+<p>程序“运行时”即是程序被编译了之后，打开程序并运行它知道程序关闭退出这段时间。”运行时错误“，是指程序在打开并执行里面的代码时发生的错误。比如NullPoinrtException</p>
+</blockquote>
+<h5 id="compile-time：编译时"><a href="#compile-time：编译时" class="headerlink" title="compile time：编译时"></a>compile time：编译时</h5><blockquote>
+<p>准确的说编译时是指我们写好的源代码在被编译成目标文件的这段时间。但我们可以通俗的看成是我们写好的源代码在被转换成最终可执行的文件这段时间。这类错误大多是语法错误，即我们没有按照编译器能够认识的格式书写代码造成的。</p>
+</blockquote>
+<h4 id="dependencies-configurations-依赖配置"><a href="#dependencies-configurations-依赖配置" class="headerlink" title="dependencies configurations 依赖配置"></a>dependencies configurations 依赖配置</h4><table>
+<thead>
+<tr>
+<th>新的参数配置</th>
+<th>废弃的参数配置</th>
+<th>行为表现</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>implementation</td>
+<td>compile</td>
+<td>在编译时只有当前module可用，也就是说依赖在运行时可在其他module可用<br> Use this, 如果改变的依赖的API，Gradle只重新编译该module</td>
+</tr>
+<tr>
+<td>api</td>
+<td>compile</td>
+<td>其他module可用，this的表现形式和原来的compile一致，在运行时和编译时其他moudle都可用。<br> of course,如果依赖的API发生改变，Gradle会重新编译所有涉及到的moudle</td>
+</tr>
+<tr>
+<td>compileOnly</td>
+<td>provided</td>
+<td>如果您使用这个配置，那么您的module必须包含一个运行时条件来检查依赖项是否可用，然后优雅地更改它的行为，以便在不提供依赖项时仍然可以运行。这有助于通过不添加不重要的临时依赖项来减少最终APK的大小。同原来的provided</td>
+</tr>
+<tr>
+<td>runtimeOnly</td>
+<td>apk</td>
+<td>Gradle只将依赖项添加到构建输出中，以便在运行时使用。也就是说，它没有添加到编译类路径中。同原来的apk</td>
+</tr>
+</tbody>
+</table>
+<p>还有更多的变更目前没有用到，请移步到<a href="https://developer.android.com/studio/build/gradle-plugin-3-0-0-migration.html" target="_blank" rel="noopener">Android官方文档</a></p>
 
       
 
