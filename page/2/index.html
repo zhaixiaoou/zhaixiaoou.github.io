@@ -158,6 +158,230 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-Android-WebViewJsBridge" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2017/12/19/Android-WebViewJsBridge/">Android-WebViewJsBridge</a>
+    </h1>
+  
+
+        
+        <a href="/2017/12/19/Android-WebViewJsBridge/" class="archive-article-date">
+  	<time datetime="2017-12-19T14:52:30.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-12-19</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><a href="https://github.com/fangj/WebViewJavascriptBridge" target="_blank" rel="noopener">WebViewJavascriptBridge的github地址</a></p>
+<p>这种方法采用js注入的方式来实现webView与h5的交互<br>相关文件的UML图<br><img src="https://raw.githubusercontent.com/zhaixiaoou/MarkdownPhotos/master/res/859FC0AB-8DEA-422C-95ED-50E247E11478.png" alt="image"></p>
+<h3 id="Native相关操作"><a href="#Native相关操作" class="headerlink" title="Native相关操作"></a>Native相关操作</h3><ul>
+<li>Activity中new WebViewJavascriptBridge()对象 bridge</li>
+<li>在WebView加载成功之后 onPageFinish()方法中加载本地js代码</li>
+<li><p>在WebView对象上addJavascriptInterface(Object object, String name)，This method can be used to allow JavaScript to control the host application. 在本地js文件中可以通过该name来，调用Native方法，调用的方法必须由@JavascriptInterface 注解</p>
+<pre><code>mWebView.addJavascriptInterface(this, &quot;_WebViewJavascriptBridge&quot;);    
+</code></pre></li>
+</ul>
+<h5 id="本地js代码实现的功能"><a href="#本地js代码实现的功能" class="headerlink" title="本地js代码实现的功能"></a>本地js代码实现的功能</h5><ul>
+<li>在当前window上添加WebViewJavascriptBridge对象<ul>
+<li>在当前document对象上添加一个event, 将该WebViewJavascriptBridge添加到event中，通过document分发这个event</li>
+<li>在html加载的js文件中，监听该event。收到该event消息之后，获取event中WebViewJavascriptBridge对象，进行初始化, 给WebViewJavascriptBridge._messageHandler赋值。</li>
+</ul>
+</li>
+</ul>
+<p>现在H5页面获取WebViewJavascriptBridge对象，可以进行交互啦！</p>
+<h3 id="H5发送消息到Native"><a href="#H5发送消息到Native" class="headerlink" title="H5发送消息到Native"></a>H5发送消息到Native</h3><p>bridge就是H5页面获取的WebViewJavascriptBridge对象</p>
+<pre><code>bridge.callHandler(&quot;handler1&quot;,&quot;gift for handler1&quot;,function(responseData){
+        console.log(&quot;got handler1 response:&quot;+responseData);
+    });
+</code></pre><h3 id="Native处理H5发来的消息"><a href="#Native处理H5发来的消息" class="headerlink" title="Native处理H5发来的消息"></a>Native处理H5发来的消息</h3><ul>
+<li><p>native本地的js代码</p>
+<pre><code>function callHandler(handlerName, data, responseCallback) {
+    _doSend({ handlerName:handlerName, data:data }, responseCallback)
+}
+function _doSend(message, responseCallback) {
+    if (responseCallback) {
+        var callbackId = &apos;cb_&apos;+(uniqueId++)+&apos;_&apos;+new Date().getTime();
+        responseCallbacks[callbackId] = responseCallback;
+        message[&apos;callbackId&apos;] = callbackId;
+        }
+        console.log(&quot;sending:&quot;+JSON.stringify(message));
+    //调用Native方法
+    _WebViewJavascriptBridge._handleMessageFromJs(JSON.stringify(message.data)||null,message.responseId||null,
+        message.responseData||null,message.callbackId||null,message.handlerName||null);
+
+}
+</code></pre></li>
+<li><p>native代码处理消息<br>_handleMessageFromJs方法负责找到注册该hanlderName的WVJBHandler，把h5发来的信息回调回Activity，Activity做相应的处理。<br></p>
+<pre><code> @JavascriptInterface
+public void _handleMessageFromJs(final String data, String responseId,
+                                 String responseData, String callbackId, String handlerName){
+    if (null!=responseId) {
+        WVJBResponseCallback responseCallback = _responseCallbacks.get(responseId);
+        responseCallback.callback(responseData);
+        _responseCallbacks.remove(responseId);
+    } else {
+        WVJBResponseCallback responseCallback = null;
+        if (null!=callbackId) {
+            responseCallback=new CallbackJs(callbackId);
+        }
+        final WVJBHandler handler;
+        if (null!=handlerName) {
+            handler = _messageHandlers.get(handlerName);
+            if (null==handler) {
+                Log.e(&quot;test&quot;,&quot;WVJB Warning: No handler for &quot;+handlerName);
+                return ;
+            }
+        } else {
+            handler = _messageHandler;
+        }
+        try {
+            final WVJBResponseCallback finalResponseCallback = responseCallback;
+            mContext.runOnUiThread(new Runnable(){
+                @Override
+                public void run() {
+                    //回调给Activity处理
+                    handler.handle(data, finalResponseCallback);
+                }
+            });
+        }catch (Exception exception) {
+            Log.e(&quot;test&quot;,&quot;WebViewJavascriptBridge: WARNING: java handler threw. &quot;+exception.getMessage());
+        }
+    }
+}
+</code></pre></li>
+</ul>
+<h3 id="Native发送消息到H5"><a href="#Native发送消息到H5" class="headerlink" title="Native发送消息到H5"></a>Native发送消息到H5</h3><ul>
+<li><p>Activity中WebViewJavascriptBridge对象bridge，这个对象和window.WebViewJavascriptBridge不是同一个。</p>
+<pre><code>bridge.callHandler(&quot;gotoMarker&quot;,&quot;1&quot;);
+</code></pre><p>  WebViewJavascriptBridge.java</p>
+<pre><code> public void callHandler(String handlerName, String data) {
+    callHandler(handlerName, data,null);
+}
+public void callHandler(String handlerName, String data, WVJBResponseCallback responseCallback){
+    _sendData(data, responseCallback,handlerName);
+}
+
+private void _sendData(String data, WVJBResponseCallback responseCallback, String handlerName){
+Map&lt;String, String&gt; message=new HashMap&lt;String,String&gt;();
+message.put(&quot;data&quot;,data);
+if (null!=responseCallback) {
+    String callbackId = &quot;java_cb_&quot;+ (++_uniqueId);
+    _responseCallbacks.put(callbackId,responseCallback);
+    message.put(&quot;callbackId&quot;,callbackId);
+}
+if (null!=handlerName) {
+    message.put(&quot;handlerName&quot;, handlerName);
+}
+_dispatchMessage(message);
+}
+
+   private void _dispatchMessage(Map&lt;String, String&gt; message){
+String messageJSON = new JSONObject(message).toString();
+//调用WebViewJavascriptBridge.js的方法
+   final String javascriptCommand=String.format(&quot;javascript:WebViewJavascriptBridge._handleMessageFromJava(&apos;%s&apos;);&quot;,doubleEscapeString(messageJSON));
+mContext.runOnUiThread(new Runnable(){
+    @Override
+    public void run() {
+        mWebView.loadUrl(javascriptCommand);    
+    }
+});
+}
+</code></pre></li>
+</ul>
+<h3 id="H5处理Native发来的消息"><a href="#H5处理Native发来的消息" class="headerlink" title="H5处理Native发来的消息"></a>H5处理Native发来的消息</h3><p>Native的js代码处理，找到H5代码注册的那个Handler回调方法，回调回去，即可处理消息。<br></p>
+<p>WebViewJavascriptBridge.js</p>
+<pre><code>function _dispatchMessageFromJava(messageJSON) {
+        var message = JSON.parse(messageJSON);
+        var messageHandler;
+
+        if (message.responseId) {
+            var responseCallback = responseCallbacks[message.responseId];
+            if (!responseCallback) { return; }
+            responseCallback(message.responseData);
+            delete responseCallbacks[message.responseId]
+        } else {
+            var responseCallback;
+            if (message.callbackId) {
+                var callbackResponseId = message.callbackId;
+                responseCallback = function(responseData) {
+                    _doSend({ responseId:callbackResponseId, responseData:responseData })
+                }
+            }
+
+            var handler = WebViewJavascriptBridge._messageHandler;
+            if (message.handlerName) {
+                handler = messageHandlers[message.handlerName]
+            }
+            try {
+                handler(message.data, responseCallback)
+            } catch(exception) {
+                if (typeof console != &apos;undefined&apos;) {
+                    console.log(&quot;WebViewJavascriptBridge: WARNING: javascript handler threw.&quot;+ exception)
+                }
+            }
+        }
+}
+</code></pre><p>html中方法</p>
+<pre><code>bridge.registerHandler(&quot;showAlert&quot;, function(data) { console.log(&quot;alert:&quot;+data); });
+</code></pre>
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">android</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2017/12/19/Android-WebViewJsBridge/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-hello-world" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
