@@ -6,17 +6,23 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="https://zhaixiaoou.com">
-  <title>Archives: 2018 | xiaoou&#39;s blog</title>
+  <title>Android事件分发总结 | xiaoou&#39;s blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="以梦为马，莫负韶华">
-<meta property="og:type" content="website">
-<meta property="og:title" content="xiaoou&#39;s blog">
-<meta property="og:url" content="https://zhaixiaoou.com/archives/2018/index.html">
+  <meta name="description" content="事件分发这块知识一直困扰着我，没有时间真正的去理解它，导致遇到一些问题的时候，感到很无力，不知道该怎么去做。Now，面对它，解决它。  可是，我竟然不知道从何写起。我就从我想写的开始写起了。不知所云，希望大家谅解。  分析版本为android-26的包，Android8.0  从手指触摸屏幕到手机离开屏幕，这个过程产生的一系列事件 事件分发的主要涉及的方法 dispatchTouchEvent">
+<meta name="keywords" content="android">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android事件分发总结">
+<meta property="og:url" content="https://zhaixiaoou.com/2018/06/05/Android事件分发总结/index.html">
 <meta property="og:site_name" content="xiaoou&#39;s blog">
-<meta property="og:description" content="以梦为马，莫负韶华">
+<meta property="og:description" content="事件分发这块知识一直困扰着我，没有时间真正的去理解它，导致遇到一些问题的时候，感到很无力，不知道该怎么去做。Now，面对它，解决它。  可是，我竟然不知道从何写起。我就从我想写的开始写起了。不知所云，希望大家谅解。  分析版本为android-26的包，Android8.0  从手指触摸屏幕到手机离开屏幕，这个过程产生的一系列事件 事件分发的主要涉及的方法 dispatchTouchEvent">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhaixiaoou/MarkdownPhotos/master/res/event-touch-series.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhaixiaoou/MarkdownPhotos/master/res/event-view-relation.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/zhaixiaoou/MarkdownPhotos/master/res/event-dispatch-rules.png">
+<meta property="og:updated_time" content="2018-06-05T09:17:25.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="xiaoou&#39;s blog">
-<meta name="twitter:description" content="以梦为马，莫负韶华">
+<meta name="twitter:title" content="Android事件分发总结">
+<meta name="twitter:description" content="事件分发这块知识一直困扰着我，没有时间真正的去理解它，导致遇到一些问题的时候，感到很无力，不知道该怎么去做。Now，面对它，解决它。  可是，我竟然不知道从何写起。我就从我想写的开始写起了。不知所云，希望大家谅解。  分析版本为android-26的包，Android8.0  从手指触摸屏幕到手机离开屏幕，这个过程产生的一系列事件 事件分发的主要涉及的方法 dispatchTouchEvent">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/zhaixiaoou/MarkdownPhotos/master/res/event-touch-series.png">
   
     <link rel="alternative" href="/atom.xml" title="xiaoou&#39;s blog" type="application/atom+xml">
   
@@ -156,36 +162,304 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
+            <article id="post-Android事件分发总结" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
   
+    <h1 class="article-title" itemprop="name">
+      Android事件分发总结
+    </h1>
   
-    
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2018" class="archive-year">2018</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2018/06/05/Android事件分发总结/" class="archive-article-date">
+
+        
+        <a href="/2018/06/05/Android事件分发总结/" class="archive-article-date">
   	<time datetime="2018-06-05T09:12:40.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-06-05</time>
 </a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2018/06/05/Android事件分发总结/">Android事件分发总结</a>
-    </h1>
-  
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>事件分发这块知识一直困扰着我，没有时间真正的去理解它，导致遇到一些问题的时候，感到很无力，不知道该怎么去做。Now，面对它，解决它。</p>
+</blockquote>
+<p>可是，我竟然不知道从何写起。我就从我想写的开始写起了。不知所云，希望大家谅解。</p>
+<blockquote>
+<p>分析版本为android-26的包，Android8.0</p>
+</blockquote>
+<h5 id="从手指触摸屏幕到手机离开屏幕，这个过程产生的一系列事件"><a href="#从手指触摸屏幕到手机离开屏幕，这个过程产生的一系列事件" class="headerlink" title="从手指触摸屏幕到手机离开屏幕，这个过程产生的一系列事件"></a>从手指触摸屏幕到手机离开屏幕，这个过程产生的一系列事件</h5><p><img src="https://raw.githubusercontent.com/zhaixiaoou/MarkdownPhotos/master/res/event-touch-series.png" width="100%" height="50%"></p>
+<h5 id="事件分发的主要涉及的方法"><a href="#事件分发的主要涉及的方法" class="headerlink" title="事件分发的主要涉及的方法"></a>事件分发的主要涉及的方法</h5><ul>
+<li>dispatchTouchEvent</li>
+<li>onInterceptTouchEvent (只有ViewGroup有)</li>
+<li>onTouchEvent</li>
+</ul>
+<h5 id="传递顺序分析"><a href="#传递顺序分析" class="headerlink" title="传递顺序分析"></a>传递顺序分析</h5><p>触摸事件的发生，传递顺序是 Activity &gt;&gt; ViewGroup &gt;&gt; View</p>
+<p><img src="https://raw.githubusercontent.com/zhaixiaoou/MarkdownPhotos/master/res/event-view-relation.png" width="50%" height="50%"></p>
+<p>那么问题来了，Activity怎么传递给ViewGroup再到View的呢？</p>
+<p>首先，Activity的dispatchTouchEvent方法。</p>
+<pre><code>public boolean dispatchTouchEvent(MotionEvent ev) {
+       if (ev.getAction() == MotionEvent.ACTION_DOWN) {
+           onUserInteraction();
+       }
+       if (getWindow().superDispatchTouchEvent(ev)) {
+           return true;
+       }
+       return onTouchEvent(ev);
+   }
+</code></pre><p>调用的是Window对象的superDispatchTouchEvent()方法，大家都知道，Window是抽象类，所以我们可以在它的实现类PhoneWindow里面找到这个方法。</p>
+<pre><code> @Override
+public boolean superDispatchTouchEvent(MotionEvent event) {
+    return mDecor.superDispatchTouchEvent(event);
+}
+</code></pre><p>mDecor即DecorView是Window的顶层View。DecorView集成FrameLayout。<br>DecorView的superDispatchTouchEvent代码：</p>
+<pre><code> public boolean superDispatchTouchEvent(MotionEvent event) {
+    return super.dispatchTouchEvent(event);
+}
+</code></pre><p>由此可以看出，调用的是父控件即ViewGroup的dispatchTouchEvent()方法。<br>话说回来，现在还是在Activity的范围内是事件流转，什么时候到布局里的ViewGroup呢？我们接着往下看。</p>
+<p>ViewGroup的dispatchTouchEvent()方法。</p>
+<pre><code>@Override
+public boolean dispatchTouchEvent(MotionEvent ev) {
 
-        <div class="article-info info-on-right">
-          
+     ...
+     if (actionMasked == MotionEvent.ACTION_DOWN
+                || mFirstTouchTarget != null) {
+            final boolean disallowIntercept = (mGroupFlags &amp; FLAG_DISALLOW_INTERCEPT) != 0;
+            if (!disallowIntercept) {
+            //如果允许Intercept方法，则调用。
+                intercepted = onInterceptTouchEvent(ev);
+                ev.setAction(action); // restore action in case it was changed
+            } else {
+                intercepted = false;
+            }
+        } else {
+            // There are no touch targets and this action is not an initial down
+            // so this view group continues to intercept touches.
+            intercepted = true;
+         }
+   ...    
+   TouchTarget newTouchTarget = null;
+   if (newTouchTarget == null &amp;&amp; childrenCount != 0) {
+       ...
+       for (int i = childrenCount - 1; i &gt;= 0; i--) {
+           final int childIndex = getAndVerifyPreorderedIndex(childrenCount, i, customOrder);
+         final View child = getAndVerifyPreorderedView(preorderedList, children, childIndex);
+         ...
+         //寻找指定的child(View)的TouchTarget
+         newTouchTarget = getTouchTarget(child);
+         //如果newTouchTarget不为空，说明已经有View消耗了这个Touch事件，有了相应的TouchTarget，那就直接跳出这个循环
+         if (newTouchTarget != null) {
+              // Child is already receiving touch within its bounds.
+              // Give it the new pointer in addition to the ones it is handling.
+              newTouchTarget.pointerIdBits |= idBitsToAssign;
+              break;
+          }
+         ...
+         //简单的理解，dispatchTransformedTouchEvent就是将相应的事件传递下去
+          if (dispatchTransformedTouchEvent(ev, false, child,idBitsToAssign)) {
+              ...
+           }
+           ...
+   }
+}
+</code></pre><p>dispatchTransformedTouchEvent代码分析：</p>
+<pre><code> /**
+ * Transforms a motion event into the coordinate space of a particular child view,
+ * filters out irrelevant pointer ids, and overrides its action if necessary.
+ * If child is null, assumes the MotionEvent will be sent to this ViewGroup instead.
+ */
+private boolean dispatchTransformedTouchEvent(MotionEvent event, boolean cancel,
+    View child, int desiredPointerIdBits) {
+    ...
+    // Calculate the number of pointers to deliver.
+    final int oldPointerIdBits = event.getPointerIdBits();
+    final int newPointerIdBits = oldPointerIdBits &amp; desiredPointerIdBits;
+
+    // If for some reason we ended up in an inconsistent state where it looks like we
+    // might produce a motion event with no pointers in it, then drop the event.
+    if (newPointerIdBits == 0) {
+        return false;
+    }
+
+    // If the number of pointers is the same and we don&apos;t need to perform any fancy
+    // irreversible transformations, then we can reuse the motion event for this
+    // dispatch as long as we are careful to revert any changes we make.
+    // Otherwise we need to make a copy.
+    final MotionEvent transformedEvent;
+    if (newPointerIdBits == oldPointerIdBits) {
+        if (child == null || child.hasIdentityMatrix()) {
+            if (child == null) {
+                handled = super.dispatchTouchEvent(event);
+            } else {
+                final float offsetX = mScrollX - child.mLeft;
+                final float offsetY = mScrollY - child.mTop;
+                event.offsetLocation(offsetX, offsetY);
+                    //将事件传递给子View。
+                handled = child.dispatchTouchEvent(event);
+
+                event.offsetLocation(-offsetX, -offsetY);
+            }
+            return handled;
+        }
+        transformedEvent = MotionEvent.obtain(event);
+    } else {
+        transformedEvent = event.split(newPointerIdBits);
+    }
+    ...
+ }
+</code></pre><p>即从DecorView传递给自己最外层的ViewGroup，以此类推，再继续传递，直到被消耗掉。</p>
+<h5 id="传递规则"><a href="#传递规则" class="headerlink" title="传递规则"></a>传递规则</h5><p><img src="https://raw.githubusercontent.com/zhaixiaoou/MarkdownPhotos/master/res/event-dispatch-rules.png" width="100%" height="50%"></p>
+<ul>
+<li>Activity<ul>
+<li>dispatchTouchEvent()方法<ul>
+<li>return true时 表示消耗该事件，不再往下传递，此事件系列的将直接传递到此</li>
+<li>return false时，表示不消耗该事件。直接无处理。</li>
+<li>return super() 向下传递</li>
+</ul>
+</li>
+<li>onTouchEvent()方法<ul>
+<li>return true/false 无影响</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>ViewGroup <ul>
+<li>dispatchTouchEvent()方法<ul>
+<li>return true，表示消耗该事件</li>
+<li>return false，表示不处理，向上传递，给上级的onTouchEvent()</li>
+<li>return super() 传递给onInterceptTouchEvent()</li>
+</ul>
+</li>
+<li>onInterceptTouchEvent()方法<ul>
+<li>return true，拦截此事件交给onTouchEvent()方法处理</li>
+<li>return false（默认），向下传递</li>
+</ul>
+</li>
+<li>onTouchEvent()方法<ul>
+<li>return true， 消耗该事件</li>
+<li>return false，表示不处理，向上传递，给上级的onTouchEvent()</li>
+<li>return super() 如果当前ViewGroup方法能传递到click方法，并且click监听存在，则返回true，否则返回false</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>View<ul>
+<li>dispatchTouchEvent()方法<ul>
+<li>return true，消耗该事件</li>
+<li>return false，表示不处理，向上传递，给上级的onTouchEvent()</li>
+<li>return super()，自己的onTouchEvent()方法执行</li>
+</ul>
+</li>
+<li>onTouchEvent()方法<ul>
+<li>return true, 消耗该事件</li>
+<li>return false，表示不处理，向上传递，给上级的onTouchEvent()</li>
+<li>return super()，当前View是clickable的，返回true，消耗掉，如果是不可点击的，返回false，向上传递</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h5 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h5><ul>
+<li>return true时，表示消耗该事件，事件到此为止，不会再传递。</li>
+<li>事件最终的到达的地方，在此系列的下次事件到达时，会已最短的距离抵达，不会再分发给不能处理的View。此系列的事件指DOWN MOVE UP， DOWN事件哪个方法消耗掉，其他事件会直接到达</li>
+</ul>
+<h5 id="OnTouchListener-gt-onTouchEvent-gt-onClickListene执行顺序分析"><a href="#OnTouchListener-gt-onTouchEvent-gt-onClickListene执行顺序分析" class="headerlink" title="OnTouchListener -&gt; onTouchEvent -&gt;  onClickListene执行顺序分析"></a>OnTouchListener -&gt; onTouchEvent -&gt;  onClickListene执行顺序分析</h5><p>View的dispatchTouchEvent()代码：</p>
+<pre><code> /**
+ * Pass the touch screen motion event down to the target view, or this
+ * view if it is the target.
+ *
+ * @param event The motion event to be dispatched.
+ * @return True if the event was handled by the view, false otherwise.
+ */
+public boolean dispatchTouchEvent(MotionEvent event) {
+    ...
+     ListenerInfo li = mListenerInfo;
+     //如果有onTouchListener则先执行，如果返回值为false的话，则执行onTouchEvent(), 如果返回true，则被消耗掉，不在执行onTouchEvent()
+        if (li != null &amp;&amp; li.mOnTouchListener != null
+            &amp;&amp; (mViewFlags &amp; ENABLED_MASK) == ENABLED
+            &amp;&amp; li.mOnTouchListener.onTouch(this, event)) {
+        result = true;
+    }
+
+    if (!result &amp;&amp; onTouchEvent(event)) {
+        result = true;
+    }
+    ...
+}
+</code></pre><p>View的onTouchEvent()代码：</p>
+<pre><code>public boolean onTouchEvent(MotionEvent event) {
+     if (clickable || (viewFlags &amp; TOOLTIP) == TOOLTIP) {
+       switch (action) {
+           case MotionEvent.ACTION_UP:
+           ...
+           if (mPerformClick == null) {
+               mPerformClick = new PerformClick();
+           }
+           if (!post(mPerformClick)) {
+                   //执行performClick()
+               performClick();
+           }
+           ...
+        }
+    }
+}
+</code></pre><p>performClick()代码：</p>
+<pre><code> /**
+ * Call this view&apos;s OnClickListener, if it is defined.  Performs all normal
+ * actions associated with clicking: reporting accessibility event, playing
+ * a sound, etc.
+ *
+ * @return True there was an assigned OnClickListener that was called, false
+ *         otherwise is returned.
+ */
+public boolean performClick() {
+    final boolean result;
+    final ListenerInfo li = mListenerInfo;
+    if (li != null &amp;&amp; li.mOnClickListener != null) {
+        playSoundEffect(SoundEffectConstants.CLICK);
+        li.mOnClickListener.onClick(this);
+        result = true;
+    } else {
+        result = false;
+    }
+
+    sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_CLICKED);
+
+    notifyEnterOrExitForAutoFillIfNeeded(true);
+
+    return result;
+}
+</code></pre><p>代码已经能说明一切了，其他就不过多赘述了。</p>
+
+      
+
+      
+        <div class="page-reward">
+          <a href="javascript:;" class="page-reward-btn tooltip-top">
+            <div class="tooltip tooltip-east">
+            <span class="tooltip-item">
+              赏
+            </span>
+            <span class="tooltip-content">
+              <span class="tooltip-text">
+                <span class="tooltip-inner">
+                  <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我吃糖果<i class="icon icon-quo-right"></i></p>
+                  <div class="reward-box">
+                    
+                    
+                  </div>
+                </span>
+              </span>
+            </span>
+          </div>
+          </a>
+        </div>
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
 	<div class="article-tag tagcloud">
 		<i class="icon-price-tags icon"></i>
 		<ul class="article-tag-list">
@@ -197,323 +471,117 @@
 		</ul>
 	</div>
 
-          
+      
 
+      
+
+      
+        
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
         </div>
-        <div class="clearfix"></div>
-    </header>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//pan.baidu.com/share/qrcode?url=https://zhaixiaoou.com/2018/06/05/Android事件分发总结/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+      
+      <div class="clearfix"></div>
+    </div>
   </div>
 </article>
+
   
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2018/05/29/git-bash命令总结/" class="archive-article-date">
-  	<time datetime="2018-05-29T06:01:17.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-05-29</time>
-</a>
+<nav id="article-nav">
+  
+  
+    <a href="/2018/05/29/git-bash命令总结/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">git bash命令总结</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
         </div>
-    	 
+        
+        
+    </div>
+</aside>
+
+
+
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2018/05/29/git-bash命令总结/">git bash命令总结</a>
-    </h1>
+  
+  
+  <div id="cloud-tie-wrapper" class="cloud-tie-wrapper"></div>
+<script>
+  var cloudTieConfig = {
+    url: "https://zhaixiaoou.com/2018/06/05/Android事件分发总结/", 
+    sourceId: "Android事件分发总结",
+    productKey: "true",
+    target: "cloud-tie-wrapper"
+  };
+</script>
+<script src="//img1.cache.netease.com/f2e/tie/yun/sdk/loader.js"></script>
   
 
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">git</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2018/03/29/Android-Gradle插件版本-必须的Gradle版本与构建工具版本-buildToolsVersion的关系/" class="archive-article-date">
-  	<time datetime="2018-03-29T10:13:17.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-03-29</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2018/03/29/Android-Gradle插件版本-必须的Gradle版本与构建工具版本-buildToolsVersion的关系/">Android Gradle插件版本 必须的Gradle版本与构建工具版本(buildToolsVersion的关系)</a>
-    </h1>
   
 
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">android</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2018/02/02/git-bash/" class="archive-article-date">
-  	<time datetime="2018-02-02T07:59:20.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-02-02</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2018/02/02/git-bash/">Git命令---撤销操作篇</a>
-    </h1>
   
 
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">git</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
   
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2018/01/28/Activity-View-Window的联系/" class="archive-article-date">
-  	<time datetime="2018-01-28T07:28:30.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-01-28</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2018/01/28/Activity-View-Window的联系/">Activity View Window的联系</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">android</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2018/01/14/minSdkVersion-targetSdkVersion-compileSdkVersion代表的含义/" class="archive-article-date">
-  	<time datetime="2018-01-14T12:26:41.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-01-14</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2018/01/14/minSdkVersion-targetSdkVersion-compileSdkVersion代表的含义/">minSdkVersion targetSdkVersion compileSdkVersion代表的含义</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">android</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2018/01/14/Android-intentFlag介绍/" class="archive-article-date">
-  	<time datetime="2018-01-14T12:12:31.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-01-14</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2018/01/14/Android-intentFlag介绍/">Android intentFlag介绍</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">android</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2018/01/07/以梦为马，莫负韶华/" class="archive-article-date">
-  	<time datetime="2018-01-07T10:46:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-01-07</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2018/01/07/以梦为马，莫负韶华/">以梦为马，莫负韶华</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">随笔</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2018/01/07/Android启动模式详解/" class="archive-article-date">
-  	<time datetime="2018-01-07T10:30:18.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-01-07</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2018/01/07/Android启动模式详解/">Android启动模式详解</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">android</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-  
-    </div></section>
-  
-
-    
 
 
           </div>
@@ -536,8 +604,8 @@
 	var yiliaConfig = {
 		mathjax: false,
 		isHome: false,
-		isPost: false,
-		isArchive: true,
+		isPost: true,
+		isArchive: false,
 		isTag: false,
 		isCategory: false,
 		open_in_new: false,

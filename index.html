@@ -158,6 +158,328 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-Android事件分发总结" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/06/05/Android事件分发总结/">Android事件分发总结</a>
+    </h1>
+  
+
+        
+        <a href="/2018/06/05/Android事件分发总结/" class="archive-article-date">
+  	<time datetime="2018-06-05T09:12:40.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-06-05</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>事件分发这块知识一直困扰着我，没有时间真正的去理解它，导致遇到一些问题的时候，感到很无力，不知道该怎么去做。Now，面对它，解决它。</p>
+</blockquote>
+<p>可是，我竟然不知道从何写起。我就从我想写的开始写起了。不知所云，希望大家谅解。</p>
+<blockquote>
+<p>分析版本为android-26的包，Android8.0</p>
+</blockquote>
+<h5 id="从手指触摸屏幕到手机离开屏幕，这个过程产生的一系列事件"><a href="#从手指触摸屏幕到手机离开屏幕，这个过程产生的一系列事件" class="headerlink" title="从手指触摸屏幕到手机离开屏幕，这个过程产生的一系列事件"></a>从手指触摸屏幕到手机离开屏幕，这个过程产生的一系列事件</h5><p><img src="https://raw.githubusercontent.com/zhaixiaoou/MarkdownPhotos/master/res/event-touch-series.png" width="100%" height="50%"></p>
+<h5 id="事件分发的主要涉及的方法"><a href="#事件分发的主要涉及的方法" class="headerlink" title="事件分发的主要涉及的方法"></a>事件分发的主要涉及的方法</h5><ul>
+<li>dispatchTouchEvent</li>
+<li>onInterceptTouchEvent (只有ViewGroup有)</li>
+<li>onTouchEvent</li>
+</ul>
+<h5 id="传递顺序分析"><a href="#传递顺序分析" class="headerlink" title="传递顺序分析"></a>传递顺序分析</h5><p>触摸事件的发生，传递顺序是 Activity &gt;&gt; ViewGroup &gt;&gt; View</p>
+<p><img src="https://raw.githubusercontent.com/zhaixiaoou/MarkdownPhotos/master/res/event-view-relation.png" width="50%" height="50%"></p>
+<p>那么问题来了，Activity怎么传递给ViewGroup再到View的呢？</p>
+<p>首先，Activity的dispatchTouchEvent方法。</p>
+<pre><code>public boolean dispatchTouchEvent(MotionEvent ev) {
+       if (ev.getAction() == MotionEvent.ACTION_DOWN) {
+           onUserInteraction();
+       }
+       if (getWindow().superDispatchTouchEvent(ev)) {
+           return true;
+       }
+       return onTouchEvent(ev);
+   }
+</code></pre><p>调用的是Window对象的superDispatchTouchEvent()方法，大家都知道，Window是抽象类，所以我们可以在它的实现类PhoneWindow里面找到这个方法。</p>
+<pre><code> @Override
+public boolean superDispatchTouchEvent(MotionEvent event) {
+    return mDecor.superDispatchTouchEvent(event);
+}
+</code></pre><p>mDecor即DecorView是Window的顶层View。DecorView集成FrameLayout。<br>DecorView的superDispatchTouchEvent代码：</p>
+<pre><code> public boolean superDispatchTouchEvent(MotionEvent event) {
+    return super.dispatchTouchEvent(event);
+}
+</code></pre><p>由此可以看出，调用的是父控件即ViewGroup的dispatchTouchEvent()方法。<br>话说回来，现在还是在Activity的范围内是事件流转，什么时候到布局里的ViewGroup呢？我们接着往下看。</p>
+<p>ViewGroup的dispatchTouchEvent()方法。</p>
+<pre><code>@Override
+public boolean dispatchTouchEvent(MotionEvent ev) {
+
+     ...
+     if (actionMasked == MotionEvent.ACTION_DOWN
+                || mFirstTouchTarget != null) {
+            final boolean disallowIntercept = (mGroupFlags &amp; FLAG_DISALLOW_INTERCEPT) != 0;
+            if (!disallowIntercept) {
+            //如果允许Intercept方法，则调用。
+                intercepted = onInterceptTouchEvent(ev);
+                ev.setAction(action); // restore action in case it was changed
+            } else {
+                intercepted = false;
+            }
+        } else {
+            // There are no touch targets and this action is not an initial down
+            // so this view group continues to intercept touches.
+            intercepted = true;
+         }
+   ...    
+   TouchTarget newTouchTarget = null;
+   if (newTouchTarget == null &amp;&amp; childrenCount != 0) {
+       ...
+       for (int i = childrenCount - 1; i &gt;= 0; i--) {
+           final int childIndex = getAndVerifyPreorderedIndex(childrenCount, i, customOrder);
+         final View child = getAndVerifyPreorderedView(preorderedList, children, childIndex);
+         ...
+         //寻找指定的child(View)的TouchTarget
+         newTouchTarget = getTouchTarget(child);
+         //如果newTouchTarget不为空，说明已经有View消耗了这个Touch事件，有了相应的TouchTarget，那就直接跳出这个循环
+         if (newTouchTarget != null) {
+              // Child is already receiving touch within its bounds.
+              // Give it the new pointer in addition to the ones it is handling.
+              newTouchTarget.pointerIdBits |= idBitsToAssign;
+              break;
+          }
+         ...
+         //简单的理解，dispatchTransformedTouchEvent就是将相应的事件传递下去
+          if (dispatchTransformedTouchEvent(ev, false, child,idBitsToAssign)) {
+              ...
+           }
+           ...
+   }
+}
+</code></pre><p>dispatchTransformedTouchEvent代码分析：</p>
+<pre><code> /**
+ * Transforms a motion event into the coordinate space of a particular child view,
+ * filters out irrelevant pointer ids, and overrides its action if necessary.
+ * If child is null, assumes the MotionEvent will be sent to this ViewGroup instead.
+ */
+private boolean dispatchTransformedTouchEvent(MotionEvent event, boolean cancel,
+    View child, int desiredPointerIdBits) {
+    ...
+    // Calculate the number of pointers to deliver.
+    final int oldPointerIdBits = event.getPointerIdBits();
+    final int newPointerIdBits = oldPointerIdBits &amp; desiredPointerIdBits;
+
+    // If for some reason we ended up in an inconsistent state where it looks like we
+    // might produce a motion event with no pointers in it, then drop the event.
+    if (newPointerIdBits == 0) {
+        return false;
+    }
+
+    // If the number of pointers is the same and we don&apos;t need to perform any fancy
+    // irreversible transformations, then we can reuse the motion event for this
+    // dispatch as long as we are careful to revert any changes we make.
+    // Otherwise we need to make a copy.
+    final MotionEvent transformedEvent;
+    if (newPointerIdBits == oldPointerIdBits) {
+        if (child == null || child.hasIdentityMatrix()) {
+            if (child == null) {
+                handled = super.dispatchTouchEvent(event);
+            } else {
+                final float offsetX = mScrollX - child.mLeft;
+                final float offsetY = mScrollY - child.mTop;
+                event.offsetLocation(offsetX, offsetY);
+                    //将事件传递给子View。
+                handled = child.dispatchTouchEvent(event);
+
+                event.offsetLocation(-offsetX, -offsetY);
+            }
+            return handled;
+        }
+        transformedEvent = MotionEvent.obtain(event);
+    } else {
+        transformedEvent = event.split(newPointerIdBits);
+    }
+    ...
+ }
+</code></pre><p>即从DecorView传递给自己最外层的ViewGroup，以此类推，再继续传递，直到被消耗掉。</p>
+<h5 id="传递规则"><a href="#传递规则" class="headerlink" title="传递规则"></a>传递规则</h5><p><img src="https://raw.githubusercontent.com/zhaixiaoou/MarkdownPhotos/master/res/event-dispatch-rules.png" width="100%" height="50%"></p>
+<ul>
+<li>Activity<ul>
+<li>dispatchTouchEvent()方法<ul>
+<li>return true时 表示消耗该事件，不再往下传递，此事件系列的将直接传递到此</li>
+<li>return false时，表示不消耗该事件。直接无处理。</li>
+<li>return super() 向下传递</li>
+</ul>
+</li>
+<li>onTouchEvent()方法<ul>
+<li>return true/false 无影响</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>ViewGroup <ul>
+<li>dispatchTouchEvent()方法<ul>
+<li>return true，表示消耗该事件</li>
+<li>return false，表示不处理，向上传递，给上级的onTouchEvent()</li>
+<li>return super() 传递给onInterceptTouchEvent()</li>
+</ul>
+</li>
+<li>onInterceptTouchEvent()方法<ul>
+<li>return true，拦截此事件交给onTouchEvent()方法处理</li>
+<li>return false（默认），向下传递</li>
+</ul>
+</li>
+<li>onTouchEvent()方法<ul>
+<li>return true， 消耗该事件</li>
+<li>return false，表示不处理，向上传递，给上级的onTouchEvent()</li>
+<li>return super() 如果当前ViewGroup方法能传递到click方法，并且click监听存在，则返回true，否则返回false</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>View<ul>
+<li>dispatchTouchEvent()方法<ul>
+<li>return true，消耗该事件</li>
+<li>return false，表示不处理，向上传递，给上级的onTouchEvent()</li>
+<li>return super()，自己的onTouchEvent()方法执行</li>
+</ul>
+</li>
+<li>onTouchEvent()方法<ul>
+<li>return true, 消耗该事件</li>
+<li>return false，表示不处理，向上传递，给上级的onTouchEvent()</li>
+<li>return super()，当前View是clickable的，返回true，消耗掉，如果是不可点击的，返回false，向上传递</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h5 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h5><ul>
+<li>return true时，表示消耗该事件，事件到此为止，不会再传递。</li>
+<li>事件最终的到达的地方，在此系列的下次事件到达时，会已最短的距离抵达，不会再分发给不能处理的View。此系列的事件指DOWN MOVE UP， DOWN事件哪个方法消耗掉，其他事件会直接到达</li>
+</ul>
+<h5 id="OnTouchListener-gt-onTouchEvent-gt-onClickListene执行顺序分析"><a href="#OnTouchListener-gt-onTouchEvent-gt-onClickListene执行顺序分析" class="headerlink" title="OnTouchListener -&gt; onTouchEvent -&gt;  onClickListene执行顺序分析"></a>OnTouchListener -&gt; onTouchEvent -&gt;  onClickListene执行顺序分析</h5><p>View的dispatchTouchEvent()代码：</p>
+<pre><code> /**
+ * Pass the touch screen motion event down to the target view, or this
+ * view if it is the target.
+ *
+ * @param event The motion event to be dispatched.
+ * @return True if the event was handled by the view, false otherwise.
+ */
+public boolean dispatchTouchEvent(MotionEvent event) {
+    ...
+     ListenerInfo li = mListenerInfo;
+     //如果有onTouchListener则先执行，如果返回值为false的话，则执行onTouchEvent(), 如果返回true，则被消耗掉，不在执行onTouchEvent()
+        if (li != null &amp;&amp; li.mOnTouchListener != null
+            &amp;&amp; (mViewFlags &amp; ENABLED_MASK) == ENABLED
+            &amp;&amp; li.mOnTouchListener.onTouch(this, event)) {
+        result = true;
+    }
+
+    if (!result &amp;&amp; onTouchEvent(event)) {
+        result = true;
+    }
+    ...
+}
+</code></pre><p>View的onTouchEvent()代码：</p>
+<pre><code>public boolean onTouchEvent(MotionEvent event) {
+     if (clickable || (viewFlags &amp; TOOLTIP) == TOOLTIP) {
+       switch (action) {
+           case MotionEvent.ACTION_UP:
+           ...
+           if (mPerformClick == null) {
+               mPerformClick = new PerformClick();
+           }
+           if (!post(mPerformClick)) {
+                   //执行performClick()
+               performClick();
+           }
+           ...
+        }
+    }
+}
+</code></pre><p>performClick()代码：</p>
+<pre><code> /**
+ * Call this view&apos;s OnClickListener, if it is defined.  Performs all normal
+ * actions associated with clicking: reporting accessibility event, playing
+ * a sound, etc.
+ *
+ * @return True there was an assigned OnClickListener that was called, false
+ *         otherwise is returned.
+ */
+public boolean performClick() {
+    final boolean result;
+    final ListenerInfo li = mListenerInfo;
+    if (li != null &amp;&amp; li.mOnClickListener != null) {
+        playSoundEffect(SoundEffectConstants.CLICK);
+        li.mOnClickListener.onClick(this);
+        result = true;
+    } else {
+        result = false;
+    }
+
+    sendAccessibilityEvent(AccessibilityEvent.TYPE_VIEW_CLICKED);
+
+    notifyEnterOrExitForAutoFillIfNeeded(true);
+
+    return result;
+}
+</code></pre><p>代码已经能说明一切了，其他就不过多赘述了。</p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">android</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/06/05/Android事件分发总结/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-git-bash命令总结" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -1169,230 +1491,6 @@ branch: master</code><ul>
       
         <p class="article-more-link">
           <a class="article-more-a" href="/2017/12/19/hexo-github-搭建自己的博客/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-Android-WebViewJsBridge" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/12/19/Android-WebViewJsBridge/">Android-WebViewJsBridge</a>
-    </h1>
-  
-
-        
-        <a href="/2017/12/19/Android-WebViewJsBridge/" class="archive-article-date">
-  	<time datetime="2017-12-19T14:52:30.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-12-19</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p><a href="https://github.com/fangj/WebViewJavascriptBridge" target="_blank" rel="noopener">WebViewJavascriptBridge的github地址</a></p>
-<p>这种方法采用js注入的方式来实现webView与h5的交互<br>相关文件的UML图<br><img src="https://raw.githubusercontent.com/zhaixiaoou/MarkdownPhotos/master/res/859FC0AB-8DEA-422C-95ED-50E247E11478.png" alt="image"></p>
-<h3 id="Native相关操作"><a href="#Native相关操作" class="headerlink" title="Native相关操作"></a>Native相关操作</h3><ul>
-<li>Activity中new WebViewJavascriptBridge()对象 bridge</li>
-<li>在WebView加载成功之后 onPageFinish()方法中加载本地js代码</li>
-<li><p>在WebView对象上addJavascriptInterface(Object object, String name)，This method can be used to allow JavaScript to control the host application. 在本地js文件中可以通过该name来，调用Native方法，调用的方法必须由@JavascriptInterface 注解</p>
-<pre><code>mWebView.addJavascriptInterface(this, &quot;_WebViewJavascriptBridge&quot;);    
-</code></pre></li>
-</ul>
-<h5 id="本地js代码实现的功能"><a href="#本地js代码实现的功能" class="headerlink" title="本地js代码实现的功能"></a>本地js代码实现的功能</h5><ul>
-<li>在当前window上添加WebViewJavascriptBridge对象<ul>
-<li>在当前document对象上添加一个event, 将该WebViewJavascriptBridge添加到event中，通过document分发这个event</li>
-<li>在html加载的js文件中，监听该event。收到该event消息之后，获取event中WebViewJavascriptBridge对象，进行初始化, 给WebViewJavascriptBridge._messageHandler赋值。</li>
-</ul>
-</li>
-</ul>
-<p>现在H5页面获取WebViewJavascriptBridge对象，可以进行交互啦！</p>
-<h3 id="H5发送消息到Native"><a href="#H5发送消息到Native" class="headerlink" title="H5发送消息到Native"></a>H5发送消息到Native</h3><p>bridge就是H5页面获取的WebViewJavascriptBridge对象</p>
-<pre><code>bridge.callHandler(&quot;handler1&quot;,&quot;gift for handler1&quot;,function(responseData){
-        console.log(&quot;got handler1 response:&quot;+responseData);
-    });
-</code></pre><h3 id="Native处理H5发来的消息"><a href="#Native处理H5发来的消息" class="headerlink" title="Native处理H5发来的消息"></a>Native处理H5发来的消息</h3><ul>
-<li><p>native本地的js代码</p>
-<pre><code>function callHandler(handlerName, data, responseCallback) {
-    _doSend({ handlerName:handlerName, data:data }, responseCallback)
-}
-function _doSend(message, responseCallback) {
-    if (responseCallback) {
-        var callbackId = &apos;cb_&apos;+(uniqueId++)+&apos;_&apos;+new Date().getTime();
-        responseCallbacks[callbackId] = responseCallback;
-        message[&apos;callbackId&apos;] = callbackId;
-        }
-        console.log(&quot;sending:&quot;+JSON.stringify(message));
-    //调用Native方法
-    _WebViewJavascriptBridge._handleMessageFromJs(JSON.stringify(message.data)||null,message.responseId||null,
-        message.responseData||null,message.callbackId||null,message.handlerName||null);
-
-}
-</code></pre></li>
-<li><p>native代码处理消息<br>_handleMessageFromJs方法负责找到注册该hanlderName的WVJBHandler，把h5发来的信息回调回Activity，Activity做相应的处理。<br></p>
-<pre><code> @JavascriptInterface
-public void _handleMessageFromJs(final String data, String responseId,
-                                 String responseData, String callbackId, String handlerName){
-    if (null!=responseId) {
-        WVJBResponseCallback responseCallback = _responseCallbacks.get(responseId);
-        responseCallback.callback(responseData);
-        _responseCallbacks.remove(responseId);
-    } else {
-        WVJBResponseCallback responseCallback = null;
-        if (null!=callbackId) {
-            responseCallback=new CallbackJs(callbackId);
-        }
-        final WVJBHandler handler;
-        if (null!=handlerName) {
-            handler = _messageHandlers.get(handlerName);
-            if (null==handler) {
-                Log.e(&quot;test&quot;,&quot;WVJB Warning: No handler for &quot;+handlerName);
-                return ;
-            }
-        } else {
-            handler = _messageHandler;
-        }
-        try {
-            final WVJBResponseCallback finalResponseCallback = responseCallback;
-            mContext.runOnUiThread(new Runnable(){
-                @Override
-                public void run() {
-                    //回调给Activity处理
-                    handler.handle(data, finalResponseCallback);
-                }
-            });
-        }catch (Exception exception) {
-            Log.e(&quot;test&quot;,&quot;WebViewJavascriptBridge: WARNING: java handler threw. &quot;+exception.getMessage());
-        }
-    }
-}
-</code></pre></li>
-</ul>
-<h3 id="Native发送消息到H5"><a href="#Native发送消息到H5" class="headerlink" title="Native发送消息到H5"></a>Native发送消息到H5</h3><ul>
-<li><p>Activity中WebViewJavascriptBridge对象bridge，这个对象和window.WebViewJavascriptBridge不是同一个。</p>
-<pre><code>bridge.callHandler(&quot;gotoMarker&quot;,&quot;1&quot;);
-</code></pre><p>  WebViewJavascriptBridge.java</p>
-<pre><code> public void callHandler(String handlerName, String data) {
-    callHandler(handlerName, data,null);
-}
-public void callHandler(String handlerName, String data, WVJBResponseCallback responseCallback){
-    _sendData(data, responseCallback,handlerName);
-}
-
-private void _sendData(String data, WVJBResponseCallback responseCallback, String handlerName){
-Map&lt;String, String&gt; message=new HashMap&lt;String,String&gt;();
-message.put(&quot;data&quot;,data);
-if (null!=responseCallback) {
-    String callbackId = &quot;java_cb_&quot;+ (++_uniqueId);
-    _responseCallbacks.put(callbackId,responseCallback);
-    message.put(&quot;callbackId&quot;,callbackId);
-}
-if (null!=handlerName) {
-    message.put(&quot;handlerName&quot;, handlerName);
-}
-_dispatchMessage(message);
-}
-
-   private void _dispatchMessage(Map&lt;String, String&gt; message){
-String messageJSON = new JSONObject(message).toString();
-//调用WebViewJavascriptBridge.js的方法
-   final String javascriptCommand=String.format(&quot;javascript:WebViewJavascriptBridge._handleMessageFromJava(&apos;%s&apos;);&quot;,doubleEscapeString(messageJSON));
-mContext.runOnUiThread(new Runnable(){
-    @Override
-    public void run() {
-        mWebView.loadUrl(javascriptCommand);    
-    }
-});
-}
-</code></pre></li>
-</ul>
-<h3 id="H5处理Native发来的消息"><a href="#H5处理Native发来的消息" class="headerlink" title="H5处理Native发来的消息"></a>H5处理Native发来的消息</h3><p>Native的js代码处理，找到H5代码注册的那个Handler回调方法，回调回去，即可处理消息。<br></p>
-<p>WebViewJavascriptBridge.js</p>
-<pre><code>function _dispatchMessageFromJava(messageJSON) {
-        var message = JSON.parse(messageJSON);
-        var messageHandler;
-
-        if (message.responseId) {
-            var responseCallback = responseCallbacks[message.responseId];
-            if (!responseCallback) { return; }
-            responseCallback(message.responseData);
-            delete responseCallbacks[message.responseId]
-        } else {
-            var responseCallback;
-            if (message.callbackId) {
-                var callbackResponseId = message.callbackId;
-                responseCallback = function(responseData) {
-                    _doSend({ responseId:callbackResponseId, responseData:responseData })
-                }
-            }
-
-            var handler = WebViewJavascriptBridge._messageHandler;
-            if (message.handlerName) {
-                handler = messageHandlers[message.handlerName]
-            }
-            try {
-                handler(message.data, responseCallback)
-            } catch(exception) {
-                if (typeof console != &apos;undefined&apos;) {
-                    console.log(&quot;WebViewJavascriptBridge: WARNING: javascript handler threw.&quot;+ exception)
-                }
-            }
-        }
-}
-</code></pre><p>html中方法</p>
-<pre><code>bridge.registerHandler(&quot;showAlert&quot;, function(data) { console.log(&quot;alert:&quot;+data); });
-</code></pre>
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">android</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2017/12/19/Android-WebViewJsBridge/">展开全文 >></a>
         </p>
       
 
