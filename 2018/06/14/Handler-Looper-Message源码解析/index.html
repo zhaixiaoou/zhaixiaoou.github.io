@@ -6,17 +6,19 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="https://zhaixiaoou.com">
-  <title>Archives | xiaoou&#39;s blog</title>
+  <title>Handler Looper MessageQueue源码解析 | xiaoou&#39;s blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="以梦为马，莫负韶华">
-<meta property="og:type" content="website">
-<meta property="og:title" content="xiaoou&#39;s blog">
-<meta property="og:url" content="https://zhaixiaoou.com/archives/index.html">
+  <meta name="description" content="分析版本为android-26的包，Android8.0  在开始介绍他们之间关系之前，需要先了解ThreadLocal的对象，详见上篇文章  Android的消息机制主要是指Handler的运行机制以及Handler所附带的MessageQueue和Looper的工作过程。下面我们就讲解下整个的工作过程。  MessageQueue 顾名思义，消息队列。但是他的数据结构并不是队列的形式，而是单">
+<meta name="keywords" content="android">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Handler Looper MessageQueue源码解析">
+<meta property="og:url" content="https://zhaixiaoou.com/2018/06/14/Handler-Looper-Message源码解析/index.html">
 <meta property="og:site_name" content="xiaoou&#39;s blog">
-<meta property="og:description" content="以梦为马，莫负韶华">
+<meta property="og:description" content="分析版本为android-26的包，Android8.0  在开始介绍他们之间关系之前，需要先了解ThreadLocal的对象，详见上篇文章  Android的消息机制主要是指Handler的运行机制以及Handler所附带的MessageQueue和Looper的工作过程。下面我们就讲解下整个的工作过程。  MessageQueue 顾名思义，消息队列。但是他的数据结构并不是队列的形式，而是单">
+<meta property="og:updated_time" content="2018-06-14T05:22:05.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="xiaoou&#39;s blog">
-<meta name="twitter:description" content="以梦为马，莫负韶华">
+<meta name="twitter:title" content="Handler Looper MessageQueue源码解析">
+<meta name="twitter:description" content="分析版本为android-26的包，Android8.0  在开始介绍他们之间关系之前，需要先了解ThreadLocal的对象，详见上篇文章  Android的消息机制主要是指Handler的运行机制以及Handler所附带的MessageQueue和Looper的工作过程。下面我们就讲解下整个的工作过程。  MessageQueue 顾名思义，消息队列。但是他的数据结构并不是队列的形式，而是单">
   
     <link rel="alternative" href="/atom.xml" title="xiaoou&#39;s blog" type="application/atom+xml">
   
@@ -156,36 +158,200 @@
             <canvas data-colors="#eaeaea" data-sectionHeight="100" data-contentId="js-content" id="myCanvas1" class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
+            <article id="post-Handler-Looper-Message源码解析" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
   
+    <h1 class="article-title" itemprop="name">
+      Handler Looper MessageQueue源码解析
+    </h1>
   
-    
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2018" class="archive-year">2018</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2018/06/14/Handler-Looper-Message源码解析/" class="archive-article-date">
+
+        
+        <a href="/2018/06/14/Handler-Looper-Message源码解析/" class="archive-article-date">
   	<time datetime="2018-06-14T05:13:03.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-06-14</time>
 </a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2018/06/14/Handler-Looper-Message源码解析/">Handler Looper MessageQueue源码解析</a>
-    </h1>
-  
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>分析版本为android-26的包，Android8.0</p>
+</blockquote>
+<p>在开始介绍他们之间关系之前，需要先了解ThreadLocal的对象，详见上篇文章</p>
+<blockquote>
+<p>Android的消息机制主要是指Handler的运行机制以及Handler所附带的MessageQueue和Looper的工作过程。下面我们就讲解下整个的工作过程。</p>
+</blockquote>
+<h5 id="MessageQueue"><a href="#MessageQueue" class="headerlink" title="MessageQueue"></a>MessageQueue</h5><blockquote>
+<p>顾名思义，消息队列。但是他的数据结构并不是队列的形式，而是单向链表，因为我们对消息最多的操作就是插入和删除，用链表的形式效率更高</p>
+</blockquote>
+<ul>
+<li><p>插入队列 enqueueMessage()</p>
+<p>  代码就不粘贴了，大致意思就是，把消息加入到消息链表中。</p>
+</li>
+<li><p>取出消息 next()</p>
+<p>  把消息取出，并删除该节点。</p>
+</li>
+</ul>
+<h5 id="Looper"><a href="#Looper" class="headerlink" title="Looper"></a>Looper</h5><blockquote>
+<p>Looper在消息机制里扮演着在线程中循环消息的角色，它不停的从消息队列里查看是否有新消息，如果有，则立即处理新消息，没有则一直阻塞在那里</p>
+</blockquote>
+<ul>
+<li>创建Looper<br>  调用Looper.prepare()方法，在当前线程中创建线程。</li>
+</ul>
+<pre><code>static final ThreadLocal&lt;Looper&gt; sThreadLocal = new ThreadLocal&lt;Looper&gt;();
+// MessageQueue消息队列
+   final MessageQueue mQueue;
+// 创建Looper, 并保存在当前线程中
+private static void prepare(boolean quitAllowed) {
+    if (sThreadLocal.get() != null) {
+        throw new RuntimeException(&quot;Only one Looper may be created per thread&quot;);
+    }
+    sThreadLocal.set(new Looper(quitAllowed));
+}
 
-        <div class="article-info info-on-right">
-          
+private Looper(boolean quitAllowed) {
+    // 创建MessageQueue对象
+    mQueue = new MessageQueue(quitAllowed);
+    mThread = Thread.currentThread();
+}
+</code></pre><ul>
+<li>通过当前线程获取Looper对象</li>
+</ul>
+<pre><code>public static @Nullable Looper myLooper() {
+    return sThreadLocal.get();
+}
+</code></pre><ul>
+<li>开始轮询 Looper.loop()</li>
+</ul>
+<pre><code>public static void loop() {
+    final Looper me = myLooper();
+    if (me == null) {
+        throw new RuntimeException(&quot;No Looper; Looper.prepare() wasn&apos;t called on this thread.&quot;);
+    }
+    final MessageQueue queue = me.mQueue;
+    ...
+    // 死循环，一直轮询消息队列，
+    for (;;) {
+        // 如果消息队列为空，则next()会堵塞
+        Message msg = queue.next(); // might block
+       // 消息返回为null，跳出循环，Looper结束
+        if (msg == null) {
+            // No message indicates that the message queue is quitting.
+            return;
+        }
+        ...
+        // 最终消息，被处理
+        msg.target.dispatchMessage(msg);
+     }
+}
+</code></pre><ul>
+<li><p>关闭Looper Looper.quitSafely()</p>
+<p>  如果在子线程中，创建了Looper在不需要的时候，记得关闭它。quitSafely()方法，会对MessageQueue标记一个退出标记，在处理完当前消息之后，再next()时，会返回null，这样就能安全退出了。</p>
+</li>
+</ul>
+<h5 id="Handler"><a href="#Handler" class="headerlink" title="Handler"></a>Handler</h5><blockquote>
+<p>Handler的工作主要是包含消息的发送和接受的过程</p>
+</blockquote>
+<ul>
+<li><p>发送消息的过程 sendMessage()</p>
+<p>  方法调用过程 sendMessage –&gt; sendMessageDelayed –&gt; sendMessageAtTime</p>
+</li>
+</ul>
+<pre><code>   public boolean sendMessageAtTime(Message msg, long uptimeMillis) {            
+    // 消息队列
+    MessageQueue queue = mQueue;
+    if (queue == null) {
+        RuntimeException e = new RuntimeException(
+                this + &quot; sendMessageAtTime() called with no mQueue&quot;);
+        Log.w(&quot;Looper&quot;, e.getMessage(), e);
+        return false;
+    }
+    return enqueueMessage(queue, msg, uptimeMillis);
+}    
+
+private boolean enqueueMessage(MessageQueue queue, Message msg, long uptimeMillis) {
+    // 把handler本身赋值给Message的target属性，在Looper中处理消息时，调用msg.target.dispatchMessage()方法，实现回调
+    msg.target = this;
+    if (mAsynchronous) {
+        msg.setAsynchronous(true);
+    }
+    // 将消息加入到消息队列
+    return queue.enqueueMessage(msg, uptimeMillis);
+}
+</code></pre><p>  看到上面代码，会想mQueue是什么鬼，在哪定义的呢？</p>
+<pre><code> public Handler(Callback callback, boolean async) {
+     ...
+     // 在当前线程中获取Looper对象。
+    mLooper = Looper.myLooper();
+    // Handler存在必须在当前线程中要有Looper，否则报错
+    if (mLooper == null) {
+        throw new RuntimeException(
+            &quot;Can&apos;t create handler inside thread that has not called Looper.prepare()&quot;);
+    }
+    // 获取Looper对象中的MessageQueue对象
+    mQueue = mLooper.mQueue;
+    mCallback = callback;
+    mAsynchronous = async;
+}
+</code></pre><p>至此，Handler Looper MessageQueue三者联系在一起了。</p>
+<p>前面提到了，在Looper.loop()时，处理消息时，调用的是，msg.target.dispatchMessage()方法。target就是Handler对象，那么下面我们就来看下dispatchMessage()方法。</p>
+<pre><code> public void dispatchMessage(Message msg) {
+     // 如果msg有回调方法，则调用
+    if (msg.callback != null) {
+        handleCallback(msg);
+    } else {
+        if (mCallback != null) {
+            if (mCallback.handleMessage(msg)) {
+                return;
+            }
+        }
+        // 处理消息 回调函数
+        handleMessage(msg);
+    }
+}
+</code></pre><p>   Message的callback其实是Runnable, handleCallback(msg)其实就是执行runnable.</p>
+<pre><code>private static void handleCallback(Message message) {
+    message.callback.run();
+}
+</code></pre><p>一般我们写Handler的话，都是直接创建一个派生类，并实现handleMessage()方法即可，当前你也可以初始化的时候，传入Callback。Callback是一个接口，必须要实现hanldeMessage()方法。</p>
+<h5 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h5><ul>
+<li>Looper内创建MessageQueue对象，并实现对MessageQueue的轮询，取出消息。</li>
+<li>Handler依附于Looper而存在，能够拿到Looper的MessageQueue对象，并把自己赋值给Message.Target属性。</li>
+<li>取出消息，Message的target调用自己的方法dispatchMessage，最终调用HandleMessage方法，实现回调</li>
+</ul>
+
+      
+
+      
+        <div class="page-reward">
+          <a href="javascript:;" class="page-reward-btn tooltip-top">
+            <div class="tooltip tooltip-east">
+            <span class="tooltip-item">
+              赏
+            </span>
+            <span class="tooltip-content">
+              <span class="tooltip-text">
+                <span class="tooltip-inner">
+                  <p class="reward-p"><i class="icon icon-quo-left"></i>谢谢你请我吃糖果<i class="icon icon-quo-right"></i></p>
+                  <div class="reward-box">
+                    
+                    
+                  </div>
+                </span>
+              </span>
+            </span>
+          </div>
+          </a>
+        </div>
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
 	<div class="article-tag tagcloud">
 		<i class="icon-price-tags icon"></i>
 		<ul class="article-tag-list">
@@ -197,364 +363,116 @@
 		</ul>
 	</div>
 
-          
+      
 
+      
+
+      
+        
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a>
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
         </div>
-        <div class="clearfix"></div>
-    </header>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+      <img src="//pan.baidu.com/share/qrcode?url=https://zhaixiaoou.com/2018/06/14/Handler-Looper-Message源码解析/" alt="微信分享二维码">
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+      
+      <div class="clearfix"></div>
+    </div>
   </div>
 </article>
+
   
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2018/06/14/ThreadLocal介绍/" class="archive-article-date">
-  	<time datetime="2018-06-14T05:09:02.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-06-14</time>
-</a>
+<nav id="article-nav">
+  
+  
+    <a href="/2018/06/14/ThreadLocal介绍/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">ThreadLocal介绍</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
         </div>
-    	 
+        
+        
+    </div>
+</aside>
+
+
+
   
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2018/06/14/ThreadLocal介绍/">ThreadLocal介绍</a>
-    </h1>
+  
+  
+  <div id="cloud-tie-wrapper" class="cloud-tie-wrapper"></div>
+<script>
+  var cloudTieConfig = {
+    url: "https://zhaixiaoou.com/2018/06/14/Handler-Looper-Message源码解析/", 
+    sourceId: "Handler-Looper-Message源码解析",
+    productKey: "true",
+    target: "cloud-tie-wrapper"
+  };
+</script>
+<script src="//img1.cache.netease.com/f2e/tie/yun/sdk/loader.js"></script>
   
 
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">android</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2018/06/05/Android事件分发总结/" class="archive-article-date">
-  	<time datetime="2018-06-05T09:12:40.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-06-05</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2018/06/05/Android事件分发总结/">Android事件分发总结</a>
-    </h1>
   
 
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">android</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2018/05/29/git-bash命令总结/" class="archive-article-date">
-  	<time datetime="2018-05-29T06:01:17.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-05-29</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2018/05/29/git-bash命令总结/">git bash命令总结</a>
-    </h1>
   
 
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">git</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2018/03/29/Android-Gradle插件版本-必须的Gradle版本与构建工具版本-buildToolsVersion的关系/" class="archive-article-date">
-  	<time datetime="2018-03-29T10:13:17.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-03-29</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2018/03/29/Android-Gradle插件版本-必须的Gradle版本与构建工具版本-buildToolsVersion的关系/">Android Gradle插件版本 必须的Gradle版本与构建工具版本(buildToolsVersion的关系)</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">android</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2018/02/02/git-bash/" class="archive-article-date">
-  	<time datetime="2018-02-02T07:59:20.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-02-02</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2018/02/02/git-bash/">Git命令---撤销操作篇</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">git</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2018/01/28/Activity-View-Window的联系/" class="archive-article-date">
-  	<time datetime="2018-01-28T07:28:30.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-01-28</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2018/01/28/Activity-View-Window的联系/">Activity View Window的联系</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">android</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2018/01/14/minSdkVersion-targetSdkVersion-compileSdkVersion代表的含义/" class="archive-article-date">
-  	<time datetime="2018-01-14T12:26:41.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-01-14</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2018/01/14/minSdkVersion-targetSdkVersion-compileSdkVersion代表的含义/">minSdkVersion targetSdkVersion compileSdkVersion代表的含义</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">android</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2018/01/14/Android-intentFlag介绍/" class="archive-article-date">
-  	<time datetime="2018-01-14T12:12:31.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-01-14</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2018/01/14/Android-intentFlag介绍/">Android intentFlag介绍</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">android</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	<a href="/2018/01/07/以梦为马，莫负韶华/" class="archive-article-date">
-  	<time datetime="2018-01-07T10:46:00.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-01-07</time>
-</a>
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-      <a class="archive-article-title" href="/2018/01/07/以梦为马，莫负韶华/">以梦为马，莫负韶华</a>
-    </h1>
-  
-
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">随笔</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-  
-    </div></section>
-  
-
-    
-    <nav id="page-nav">
-      <span class="page-number current">1</span><a class="page-number" href="/archives/page/2/">2</a><a class="extend next" rel="next" href="/archives/page/2/">Next &raquo;</a>
-    </nav>
   
 
 
@@ -578,8 +496,8 @@
 	var yiliaConfig = {
 		mathjax: false,
 		isHome: false,
-		isPost: false,
-		isArchive: true,
+		isPost: true,
+		isArchive: false,
 		isTag: false,
 		isCategory: false,
 		open_in_new: false,

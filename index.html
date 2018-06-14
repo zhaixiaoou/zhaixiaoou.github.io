@@ -158,6 +158,344 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-Handler-Looper-Message源码解析" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/06/14/Handler-Looper-Message源码解析/">Handler Looper MessageQueue源码解析</a>
+    </h1>
+  
+
+        
+        <a href="/2018/06/14/Handler-Looper-Message源码解析/" class="archive-article-date">
+  	<time datetime="2018-06-14T05:13:03.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-06-14</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <blockquote>
+<p>分析版本为android-26的包，Android8.0</p>
+</blockquote>
+<p>在开始介绍他们之间关系之前，需要先了解ThreadLocal的对象，详见上篇文章</p>
+<blockquote>
+<p>Android的消息机制主要是指Handler的运行机制以及Handler所附带的MessageQueue和Looper的工作过程。下面我们就讲解下整个的工作过程。</p>
+</blockquote>
+<h5 id="MessageQueue"><a href="#MessageQueue" class="headerlink" title="MessageQueue"></a>MessageQueue</h5><blockquote>
+<p>顾名思义，消息队列。但是他的数据结构并不是队列的形式，而是单向链表，因为我们对消息最多的操作就是插入和删除，用链表的形式效率更高</p>
+</blockquote>
+<ul>
+<li><p>插入队列 enqueueMessage()</p>
+<p>  代码就不粘贴了，大致意思就是，把消息加入到消息链表中。</p>
+</li>
+<li><p>取出消息 next()</p>
+<p>  把消息取出，并删除该节点。</p>
+</li>
+</ul>
+<h5 id="Looper"><a href="#Looper" class="headerlink" title="Looper"></a>Looper</h5><blockquote>
+<p>Looper在消息机制里扮演着在线程中循环消息的角色，它不停的从消息队列里查看是否有新消息，如果有，则立即处理新消息，没有则一直阻塞在那里</p>
+</blockquote>
+<ul>
+<li>创建Looper<br>  调用Looper.prepare()方法，在当前线程中创建线程。</li>
+</ul>
+<pre><code>static final ThreadLocal&lt;Looper&gt; sThreadLocal = new ThreadLocal&lt;Looper&gt;();
+// MessageQueue消息队列
+   final MessageQueue mQueue;
+// 创建Looper, 并保存在当前线程中
+private static void prepare(boolean quitAllowed) {
+    if (sThreadLocal.get() != null) {
+        throw new RuntimeException(&quot;Only one Looper may be created per thread&quot;);
+    }
+    sThreadLocal.set(new Looper(quitAllowed));
+}
+
+private Looper(boolean quitAllowed) {
+    // 创建MessageQueue对象
+    mQueue = new MessageQueue(quitAllowed);
+    mThread = Thread.currentThread();
+}
+</code></pre><ul>
+<li>通过当前线程获取Looper对象</li>
+</ul>
+<pre><code>public static @Nullable Looper myLooper() {
+    return sThreadLocal.get();
+}
+</code></pre><ul>
+<li>开始轮询 Looper.loop()</li>
+</ul>
+<pre><code>public static void loop() {
+    final Looper me = myLooper();
+    if (me == null) {
+        throw new RuntimeException(&quot;No Looper; Looper.prepare() wasn&apos;t called on this thread.&quot;);
+    }
+    final MessageQueue queue = me.mQueue;
+    ...
+    // 死循环，一直轮询消息队列，
+    for (;;) {
+        // 如果消息队列为空，则next()会堵塞
+        Message msg = queue.next(); // might block
+       // 消息返回为null，跳出循环，Looper结束
+        if (msg == null) {
+            // No message indicates that the message queue is quitting.
+            return;
+        }
+        ...
+        // 最终消息，被处理
+        msg.target.dispatchMessage(msg);
+     }
+}
+</code></pre><ul>
+<li><p>关闭Looper Looper.quitSafely()</p>
+<p>  如果在子线程中，创建了Looper在不需要的时候，记得关闭它。quitSafely()方法，会对MessageQueue标记一个退出标记，在处理完当前消息之后，再next()时，会返回null，这样就能安全退出了。</p>
+</li>
+</ul>
+<h5 id="Handler"><a href="#Handler" class="headerlink" title="Handler"></a>Handler</h5><blockquote>
+<p>Handler的工作主要是包含消息的发送和接受的过程</p>
+</blockquote>
+<ul>
+<li><p>发送消息的过程 sendMessage()</p>
+<p>  方法调用过程 sendMessage –&gt; sendMessageDelayed –&gt; sendMessageAtTime</p>
+</li>
+</ul>
+<pre><code>   public boolean sendMessageAtTime(Message msg, long uptimeMillis) {            
+    // 消息队列
+    MessageQueue queue = mQueue;
+    if (queue == null) {
+        RuntimeException e = new RuntimeException(
+                this + &quot; sendMessageAtTime() called with no mQueue&quot;);
+        Log.w(&quot;Looper&quot;, e.getMessage(), e);
+        return false;
+    }
+    return enqueueMessage(queue, msg, uptimeMillis);
+}    
+
+private boolean enqueueMessage(MessageQueue queue, Message msg, long uptimeMillis) {
+    // 把handler本身赋值给Message的target属性，在Looper中处理消息时，调用msg.target.dispatchMessage()方法，实现回调
+    msg.target = this;
+    if (mAsynchronous) {
+        msg.setAsynchronous(true);
+    }
+    // 将消息加入到消息队列
+    return queue.enqueueMessage(msg, uptimeMillis);
+}
+</code></pre><p>  看到上面代码，会想mQueue是什么鬼，在哪定义的呢？</p>
+<pre><code> public Handler(Callback callback, boolean async) {
+     ...
+     // 在当前线程中获取Looper对象。
+    mLooper = Looper.myLooper();
+    // Handler存在必须在当前线程中要有Looper，否则报错
+    if (mLooper == null) {
+        throw new RuntimeException(
+            &quot;Can&apos;t create handler inside thread that has not called Looper.prepare()&quot;);
+    }
+    // 获取Looper对象中的MessageQueue对象
+    mQueue = mLooper.mQueue;
+    mCallback = callback;
+    mAsynchronous = async;
+}
+</code></pre><p>至此，Handler Looper MessageQueue三者联系在一起了。</p>
+<p>前面提到了，在Looper.loop()时，处理消息时，调用的是，msg.target.dispatchMessage()方法。target就是Handler对象，那么下面我们就来看下dispatchMessage()方法。</p>
+<pre><code> public void dispatchMessage(Message msg) {
+     // 如果msg有回调方法，则调用
+    if (msg.callback != null) {
+        handleCallback(msg);
+    } else {
+        if (mCallback != null) {
+            if (mCallback.handleMessage(msg)) {
+                return;
+            }
+        }
+        // 处理消息 回调函数
+        handleMessage(msg);
+    }
+}
+</code></pre><p>   Message的callback其实是Runnable, handleCallback(msg)其实就是执行runnable.</p>
+<pre><code>private static void handleCallback(Message message) {
+    message.callback.run();
+}
+</code></pre><p>一般我们写Handler的话，都是直接创建一个派生类，并实现handleMessage()方法即可，当前你也可以初始化的时候，传入Callback。Callback是一个接口，必须要实现hanldeMessage()方法。</p>
+<h5 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h5><ul>
+<li>Looper内创建MessageQueue对象，并实现对MessageQueue的轮询，取出消息。</li>
+<li>Handler依附于Looper而存在，能够拿到Looper的MessageQueue对象，并把自己赋值给Message.Target属性。</li>
+<li>取出消息，Message的target调用自己的方法dispatchMessage，最终调用HandleMessage方法，实现回调</li>
+</ul>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">android</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/06/14/Handler-Looper-Message源码解析/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-ThreadLocal介绍" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2018/06/14/ThreadLocal介绍/">ThreadLocal介绍</a>
+    </h1>
+  
+
+        
+        <a href="/2018/06/14/ThreadLocal介绍/" class="archive-article-date">
+  	<time datetime="2018-06-14T05:09:02.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-06-14</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h5 id="ThreadLocal对象"><a href="#ThreadLocal对象" class="headerlink" title="ThreadLocal对象"></a>ThreadLocal对象</h5><p>是一个线程内部的数据存储类。它可以为各线程存储数据，同时只能由当前线程获取到存储的数据。</p>
+<p>代码能说明一切问题。</p>
+<pre><code>ThreadLocal&lt;Boolean&gt; threadLocal = new ThreadLocal&lt;Boolean&gt;();
+    threadLocal.set(true);
+    System.out.println(Thread.currentThread().getName() + &quot;--value:&quot; + threadLocal.get());
+    new Thread(&quot;Thread#1&quot;) {
+        @Override
+        public void run() {
+            threadLocal.set(false);
+            System.out.println(Thread.currentThread().getName() + &quot;--value:&quot; + threadLocal.get());
+        }
+    }.start();
+    new Thread(&quot;Thread#2&quot;) {
+        @Override
+        public void run() {
+            System.out.println(Thread.currentThread().getName() + &quot;--value:&quot; + threadLocal.get());
+        }
+    }.start();
+</code></pre><p>输出结果</p>
+<pre><code>main--value:true
+Thread#1--value:false
+Thread#2--value:null
+</code></pre><p>可是怎么实现的呢？看下set方法是如何实现的。</p>
+<pre><code>public void set(T value) {
+        // 获取当前线程，保存在当前线程的Map中
+       Thread t = Thread.currentThread();
+       ThreadLocalMap map = getMap(t);
+       if (map != null)
+           map.set(this, value);
+       else
+           createMap(t, value);
+  }
+</code></pre><p>那么get方法呢</p>
+<pre><code>public T get() {
+    Thread t = Thread.currentThread();
+    ThreadLocalMap map = getMap(t);
+    if (map != null) {
+        ThreadLocalMap.Entry e = map.getEntry(this);
+        if (e != null) {
+            @SuppressWarnings(&quot;unchecked&quot;)
+            T result = (T)e.value;
+            return result;
+        }
+    }
+    return setInitialValue();
+}
+</code></pre><p>由此可以看出，在不同线程，获取到的对象都会是当前线程的数据。可以实现不同线程之间，数据副本备份。</p>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">android</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2018/06/14/ThreadLocal介绍/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-Android事件分发总结" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -1251,246 +1589,6 @@ public void setContentView(int layoutResID) {
       
         <p class="article-more-link">
           <a class="article-more-a" href="/2018/01/07/以梦为马，莫负韶华/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-Android启动模式详解" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/01/07/Android启动模式详解/">Android启动模式详解</a>
-    </h1>
-  
-
-        
-        <a href="/2018/01/07/Android启动模式详解/" class="archive-article-date">
-  	<time datetime="2018-01-07T10:30:18.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2018-01-07</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <ul>
-<li><p>standard-默认模式</p>
-<ul>
-<li>在没有设定启动模式的前提下，系统默认使用该模式启动Activity。每次启动Activity都会重新创建一个新的实例，不管这个实例存不存在。</li>
-</ul>
-</li>
-<li><p>singleTop-栈顶复用模式</p>
-<ul>
-<li>在这个模式下，如果要打开的Activity，已经位于栈顶，则不会重新创建，同时它的onNewIntent()方法被调用。<br><img src="https://raw.githubusercontent.com/zhaixiaoou/MarkdownPhotos/master/res/55A4092E-53DA-458E-8417-E32DF9A43350.png" alt="image"><br>要打开的Activity在栈顶，直接复用，调用onNewIntent()方法。</li>
-<li>如果栈顶不存在该Activity的实例，则和standard模式相同。<br><img src="https://raw.githubusercontent.com/zhaixiaoou/MarkdownPhotos/master/res/EA7B9FBE-8F34-49B4-AEC2-67CA6D9B31A9.png" alt="image"><br>hashCode值不一样，说明是不同的实例。</li>
-</ul>
-</li>
-<li><p>singleTask-栈内复用模式</p>
-<ul>
-<li><p>在这个模式下，如果栈中存在该Activity的实例，就会复用这个Activity，并将它之上的Activity全部出栈，并且会调用该实例的onNewIntent()方法<br><img src="https://raw.githubusercontent.com/zhaixiaoou/MarkdownPhotos/master/res/0920D52E-6566-4E3D-BEB9-9BE29B98A5FE.png" alt="image"><br>在这个过程中，涉及到了一个任务栈匹配的一个问题。这个模式启动的时候，是在自己的任务栈中寻找实例，这个任务栈就是通过taskAffinity指定。如果这个任务栈不存在，就会创建这个任务栈<br><img src="https://raw.githubusercontent.com/zhaixiaoou/MarkdownPhotos/master/res/8BA96DB3-61AB-4EFD-8D91-9384AB0709E2.png" alt="image"><br>这里给OtherSingleTask指明新的taskAffinity名字，当打开OtherSingleTaskActivity就会根据taskAffinity去寻找当前是否存在一个对应名字的任务栈，如果没有，就新建一个该名字的任务栈，并将该实例入栈，如果有话，就会查找在该任务栈里面是否有该实例。<br></p>
-<pre><code>很重要的一点，taskAffinity属性不对standard和singleTop模式有任何影响，
-即时你指定了该属性为其他不同的值，这两种启动模式下不会创建新的task
-（如果不指定即默认值，即包名） 
-</code></pre></li>
-</ul>
-</li>
-<li><p>singleInstance-全局唯一模式</p>
-<ul>
-<li>该模式具备singleTask所有的特性外，与他区别的是，singleInstance模式下的Activity会单独占用一个Task栈，具有全局唯一性，即在整个系统中就这一个实例，由于栈内复用的特性，后序请求都不会新建该实例，除非该任务栈被销毁，以singleInstance模式启动的Activity在整个系统中是单例的，如果在启动这样的Activiyt时，已经存在了一个实例，那么会把它所在的任务调度到前台，重用这个实例。<br><img src="https://raw.githubusercontent.com/zhaixiaoou/MarkdownPhotos/master/res/B5BA99AC-4744-4BC4-AA0E-83D9C0FC4E03.png" alt="image"><br>第一次启动SingleInstanceActivity,新建了一个实例，第二次从其他APP通过隐式调用再次进入该Activity时，直接复用该实例，调用onNewIntent()方法。</li>
-</ul>
-</li>
-</ul>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">android</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2018/01/07/Android启动模式详解/">展开全文 >></a>
-        </p>
-      
-
-      
-      <div class="clearfix"></div>
-    </div>
-  </div>
-</article>
-
-<aside class="wrap-side-operation">
-    <div class="mod-side-operation">
-        
-        <div class="jump-container" id="js-jump-container" style="display:none;">
-            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
-                <i class="icon-font icon-back"></i>
-            </a>
-            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
-                <i class="icon-font icon-plane jump-plane"></i>
-            </div>
-        </div>
-        
-        
-    </div>
-</aside>
-
-
-
-
-  
-    <article id="post-hexo-github-搭建自己的博客" class="article article-type-post  article-index" itemscope itemprop="blogPost">
-  <div class="article-inner">
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2017/12/19/hexo-github-搭建自己的博客/">hexo+github 搭建自己的博客</a>
-    </h1>
-  
-
-        
-        <a href="/2017/12/19/hexo-github-搭建自己的博客/" class="archive-article-date">
-  	<time datetime="2017-12-19T15:19:22.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2017-12-19</time>
-</a>
-        
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>作为小白一名，大神请自行飘过，不用理会！</p>
-<p>hexo是一款基于Node.js的静态博客框架，github就不多说了。</p>
-<h4 id="配置环境"><a href="#配置环境" class="headerlink" title="配置环境"></a>配置环境</h4><ul>
-<li>Node.js。如果没有<code>node.js</code> 环境，请自行安装-&gt; <a href="https://nodejs.org/" target="_blank" rel="noopener">官方网站</a></li>
-<li>Git</li>
-<li>Github账号</li>
-<li>sourceTree(Git客户端管理工具，可以选择其他更好的)</li>
-</ul>
-<h3 id="配置Github"><a href="#配置Github" class="headerlink" title="配置Github"></a>配置Github</h3><ul>
-<li>建立repository<br><ul>
-<li>建立与你用户名对应的仓库，仓库名必须为<code>your_user_name.github.io</code>固定写法</li>
-</ul>
-</li>
-</ul>
-<h3 id="安装Hexo"><a href="#安装Hexo" class="headerlink" title="安装Hexo"></a>安装Hexo</h3><p>在拉取的仓库根目录blog安装Hexo</p>
-<ul>
-<li>安装Hexo:<ul>
-<li><code>sudo npm install -g hexo</code></li>
-</ul>
-</li>
-<li><p>初始化Hexo:</p>
-<ul>
-<li><code>hexo init</code></li>
-</ul>
-<p>至此，安装工作全部完成。blog就是你博客的根目录，所以的操作就在这个文件夹完成。<br></p>
-</li>
-<li><p>生成静态页面：</p>
-<ul>
-<li><code>hexo generate</code> 或者<code>hexo g</code></li>
-</ul>
-</li>
-<li><p>启动本地服务，进行文章预览调试：</p>
-<ul>
-<li><code>hexo server</code>  浏览器输入<a href="http://localhost:4000" target="_blank" rel="noopener">http://localhost:4000</a></li>
-</ul>
-</li>
-</ul>
-<h3 id="建立关联"><a href="#建立关联" class="headerlink" title="建立关联"></a>建立关联</h3><p>在blog本地目录下，找到<code>_config.yml</code>文件<br></p>
-<ul>
-<li>修改 <code>public_dir</code> 为<code>./</code><br></li>
-<li>修改deploy为：<br><br><code>deploy:
-type: git
-repo: https://github.com/zhaixiaoou/zhaixiaoou.github.io.git
-branch: master</code><ul>
-<li>Site下可自行设置（博客的title、描述、作者等等）</li>
-<li>URL 可设置为<code>https://zhaixiaoou.github.io/</code> （your_user_name）</li>
-<li><h5 id="执行命令-npm-install-hexo-deployer-git-save"><a href="#执行命令-npm-install-hexo-deployer-git-save" class="headerlink" title="执行命令 npm install hexo-deployer-git --save"></a>执行命令 <code>npm install hexo-deployer-git --save</code></h5></li>
-<li><h5 id="配置命令-hexo-deploy"><a href="#配置命令-hexo-deploy" class="headerlink" title="配置命令 hexo deploy"></a>配置命令 <code>hexo deploy</code></h5>然后在浏览器中输入<a href="http://zhaixiaoou.github.io" target="_blank" rel="noopener">http://zhaixiaoou.github.io</a> 输入你github账号的名字</li>
-</ul>
-</li>
-</ul>
-<h3 id="修改部署"><a href="#修改部署" class="headerlink" title="修改部署"></a>修改部署</h3><ul>
-<li>部署 <code>hexo g</code></li>
-<li>提交 <code>hexo d</code></li>
-</ul>
-<h3 id="常用命令"><a href="#常用命令" class="headerlink" title="常用命令"></a>常用命令</h3><ul>
-<li><p>hexo new”postName” #新建文章</p>
-</li>
-<li><p>hexo new page”pageName” #新建页面</p>
-</li>
-<li><p>hexo generate #生成静态页面至public目录</p>
-</li>
-<li><p>hexo server #开启预览访问端口（默认端口4000，’ctrl + c’关闭server）</p>
-</li>
-<li><p>hexo deploy #将.deploy目录部署到GitHub</p>
-</li>
-</ul>
-
-      
-
-      
-    </div>
-    <div class="article-info article-info-index">
-      
-      
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">hexo</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-      
-
-      
-        <p class="article-more-link">
-          <a class="article-more-a" href="/2017/12/19/hexo-github-搭建自己的博客/">展开全文 >></a>
         </p>
       
 
